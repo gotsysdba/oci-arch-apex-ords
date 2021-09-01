@@ -152,7 +152,7 @@ Placing that IPAddress in a web browser will redirect you to the secure APEX por
 --- 
 **Q: Can I use LetsEncrypt/CertBot for Certificate Management?**
 
-**A:** Yes.
+**A:** Yes.  
 
 ---
 **Q: How do I access the APEX Admin Page**
