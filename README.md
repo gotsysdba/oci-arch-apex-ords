@@ -2,21 +2,30 @@
 OCI APEX Application using Customer Managed ORDS
 
 ## Architecture
-This IaC supports 5 different size configurations: ALF (Always Free), S, M, L, XL with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate environment (default: ALF)
+This Terraform IaC supports 5 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L, XL with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
 
-|         | Compute Instances (CI) | CI Horizontal Scale | CI CPU Initial | CI CPU Vertical Scale | CI Memory Initial | CI Memory Scale | ADB CPU Initial | ADB CPU Scale | Load Balancer (Mbps Min) | Load Balancer (Mbps Max) | Disastor Recovery | Dataguard |
-| ------- | ---------------------- | ----------------------- | ------ | --------------------- | --------- | --------------- | ------- | ------------- | ------------------------ | ------------------------ | ----------------- | --------- |
-| __XL__ | 3 | 9 | 4 | 8 | 64 | 192 | 4 | 12  | 100 | 4990 | TRUE  | TRUE  |
-| __L__ | 3 | 9 | 4 | 8 | 64 | 192 | 4 | 12  | 100 | 4990 | TRUE  | TRUE  |
-| __M__ | 3 | 9 | 4 | 8 | 64 | 192 | 4 | 12  | 100 | 4990 | TRUE  | TRUE  |
-| __S__ | 1 | 3 | 1 | 2 | 16 | 48  | 1 | 3   | 10  | 4990 | FALSE | FALSE |
-| __ALF__ | 1 | 1 | 1 | 1 | 16 | N/A | 1 | N/A | 10  | N/A  | FALSE | FALSE |
+|                              | ALF   | S     | M    | L    | XL   |
+| ---------------------------- | ----- | ----- | ---- | ---- | ---- |
+| **Compute Instances (CI)**   | 1     | 1     | 2    | 3    | 3    |
+| **CI Horizontal Scale**      | 1     | 3     | 6    | 9    | 9    |
+| **CI CPU Initial**           | 1     | 1     | 2    | 4    | 4    |
+| **CI CPU Vertical Scale**    | 1     | 2     | 4    | 8    | 8    |
+| **CI Memory Initial**        | 1     | 16    | 32   | 64   | 64   |
+| **CI Memory Scale**          | N/A   | 32    | 64   | 192  | 192  |
+| **ADB CPU Initial**          | 1     | 1     | 2    | 4    | 4    |
+| **ADB CPU Scale**            | N/A   | 3     | 6    | 12   | 12   |
+| **ADB Storage (TB)**         | 1     | 1     | 1    | 1    | 1    |
+| **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  | 100  |
+| **Load Balancer (Mbps Max)** | 10    | 480   | 4990 | 4990 | 4990 |
+| **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE | TRUE |
+| **Dataguard**                | FALSE | FALSE | TRUE | TRUE | TRUE |
 
-![OCI APEX Architecture](images/APEX_Adv.png "APEX Architecture")
+
+### XL Architecture Diagram
+![OCI XL APEX/ORDS Architecture](images/XL_APEX_ORDS.png "XL APEX/ORDS Architecture")
 
 ## Assumptions
-* Existing OCI tenancy; including Always Free
-* The deployment will be performed from a Linux or MacOS system (non-Windows)
+* An existing OCI tenancy; either Paid or Always Free
 
 ## Prerequisites
 ### Setup Keys
@@ -85,10 +94,10 @@ TF_VAR_user_ocid=ocid1.user....ewc5a
 To change the default ALF (Always Free) sizing, set TF_VAR_size to either S, M, L, or XL; for example:
 
 ```
-export TF_VAR_environment=XL
+export TF_VAR_size=XL
 ```
 
-It is recommended to have separate clones of the VCS repository for each sized deployment due to tfstate files.
+It is recommended to have multiple workspaces of the VCS repository for each sized deployment due to tfstate files.
 
 ## Deploy Using the Terraform CLI
 ### Install Terraform
@@ -108,30 +117,46 @@ terraform plan
 terraform apply
 ```
 
-## Accessing APEX/SQLDeveloper (Web)
-After the `terraform apply` has completed, it will output an IPAddress such as:
+## Accessing APEX (Web)
+After the `terraform apply` has completed, it will output the Load Balancers IPAddress such as:
 ```
 lb_address = tolist([
   "129.159.249.211",
 ])
 ```
 
+You can also look up the Load Balancer IP via the OCI Console.
 Placing that IPAddress in a web browser will redirect you to the secure APEX port and prompt for the ADB's ADMIN password.  The ADMIN password was randomised during provisioning and is unknown.  Reset it in the OCI console to login.
 
-SQLDeveloper Web is also accessible at that IPAddress: https://&lt;IPAddress&gt;/ords/sql-developer
-
-
-## FAQ
+# FAQ
 **Q: Why front the ADB with ORDS Compute Instances**
 
-**A:** Because
+**A:** The primary reason is to allow Friendly (i.e. https://&lt;www.YourOrganisation.com&gt;), TLS enabled URLs to APEX.  This is achived via an OCI Load Balancer which can be configured against a OCI Compute Instance running ORDS.
 
+---
 **Q: How do I make my APEX Application the default when accessing the URL**
 
 **A:** The config_oracle.ksh script adds `<entry key="misc.defaultPage">f?p=DEFAULT:1</entry>` to the defaults.xml configuration.  The DEFAULT part of the configuration is an alias that can be set on an application.  Once an APEX Application is deployed, change its alias to DEFAULT and the end-user will be automatically redirected to it when accessing the URL:
 *Shared Components* -> *Application Definition Attributes* -> Change *Application Alias*
 
+---
+**Q: How do I setup "Friendly URLs"**
+
+**A:** 
+
+---
+**Q: How do I update the HTTPS certificate**
+
+**A:** The infrastructure will be deployed with a self-signed certificate which will result in an warning message when visiting the APEX Application.  A valid certificate, registered against the "Friendly URL", should be applied to the Load Balancer resource before Productionisation.  Details can be found in the [SSL Certificate Management Documenation](https://docs.oracle.com/en-us/iaas/Content/Balance/Tasks/managingcertificates.htm).  Note that LetsEncrypt/CertBot can be used to manage the Load Balancer certificate as per the below Q/A.
+
+--- 
+**Q: Can I use LetsEncrypt/CertBot for Certificate Management?**
+
+**A:** Yes.
+
+---
 **Q: How do I access the APEX Admin Page**
 
-**A:** Administration Services: https://yourdomain/ords/apex_admin
- Workspace Login:         https://yourdomain/ords/f?p=4550
+**A:** Where yourDomain is the IP Address of the Load Balancer, or the Domain Name after DNS updates: 
+Administration Services: https://yourDomain/ords/apex_admin
+Workspace Login:         https://yourDomain/ords/f?p=4550

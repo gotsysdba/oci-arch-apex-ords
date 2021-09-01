@@ -38,9 +38,9 @@ provider "registry.terraform.io/hashicorp/null" {
 }
 
 provider "registry.terraform.io/hashicorp/oci" {
-  version = "4.40.0"
+  version = "4.41.0"
   hashes = [
-    "h1:RAFI2QO6zpFkRvZRW9UUcSj32HPnQlqORcwFWu2gSb8=",
+    "h1:NHw2wop3XlznfaiVploU742ICzDYzso3j37YlxQ9aN4=",
   ]
 }
 

@@ -81,6 +81,7 @@ variable "compute_instances" {
   }
 }
 
+// Scalable x2 (excl. ALF)
 variable "compute_flex_shape_ocpus" {
   type = map
   default = {
