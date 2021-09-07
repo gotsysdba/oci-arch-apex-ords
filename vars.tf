@@ -1,28 +1,25 @@
 # Copyright © 2020, Oracle and/or its affiliates. 
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-variable "region" {}
+// Basic Hidden
 variable "tenancy_ocid" {}
 variable "compartment_ocid" {}
+variable "region" {}
+
+// Extra Hidden
 variable "user_ocid" {}
 variable "fingerprint" {}
-variable "private_key_path" {}
-variable "ssh_private_key" {}
-variable "ssh_public_key" {}
+variable "api_private_key_path" {}
 
-
-// Project Specifics
+// General Configuration
 variable "proj_abrv" {
   default = "apexpoc"
 }
-
-variable "adb_license_model" {
-  default = "BRING_YOUR_OWN_LICENSE"
-}
-
-// Sizing
 variable "size" {
     default = "ALF"
+}
+variable "adb_license_model" {
+  default = "BRING_YOUR_OWN_LICENSE"
 }
 
 variable "adb_cpu_core_count" {

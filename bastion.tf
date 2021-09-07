@@ -23,7 +23,7 @@ resource "oci_bastion_session" "bastion_service_ssh" {
   bastion_id = oci_bastion_bastion.bastion_service.id
 
   key_details {
-    public_key_content = var.ssh_public_key
+    public_key_content = tls_private_key.example_com.public_key_openssh
   }
 
   target_resource_details {

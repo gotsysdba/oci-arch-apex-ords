@@ -48,9 +48,8 @@ resource "oci_core_instance" "instance" {
     assign_public_ip = local.is_always_free
     nsg_ids          = [oci_core_network_security_group.security_group_ssh.id, oci_core_network_security_group.security_group_ords.id]
   }
-  state = "RUNNING"
   metadata = {
-    ssh_authorized_keys = var.ssh_public_key
+    ssh_authorized_keys = tls_private_key.example_com.public_key_openssh
   }
   lifecycle {
     ignore_changes = all
@@ -120,6 +119,10 @@ resource "oci_core_instance_pool" "instance_pool" {
     load_balancer_id = oci_load_balancer.lb.id
     port             = "8080"
     vnic_selection   = "PrimaryVnic"
+  }
+  lifecycle {
+    // Don't readjust the size as will be pooled
+    ignore_changes = [size]
   }
 }
 
