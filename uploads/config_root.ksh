@@ -6,6 +6,8 @@ typeset -i  RC=0
 typeset -r  IFS_ORIG=$IFS
 typeset -rx SCRIPT_NAME="${0##*/}"
 
+typeset -r CONTEXT="ords"
+typeset -r ORDS_DIR="/opt/oracle/ords"
 #------------------------------------------------------------------------------
 # LOCAL FUNCTIONS
 #------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ fi
 
 while getopts :s:h args; do
 	case $args in
-		s) typeset -r MYSTAGE="${OPTARG}" ;;
+		s) typeset -r  MYSTAGE="${OPTARG}" ;;
 		h) usage ;;
 	esac
 
@@ -34,6 +36,7 @@ done
 if [[ ${MYSTAGE} != @(PRE|POST) ]]; then
 	usage && exit 1
 fi
+
 #------------------------------------------------------------------------------
 # MAIN
 #------------------------------------------------------------------------------
@@ -72,7 +75,7 @@ if [[ ${MYSTAGE} == "PRE" ]]; then
 fi
 
 if [[ ${MYSTAGE} == "POST" ]]; then
-	java -jar -Xmx1024M /opt/oracle/ords/ords.war configdir /opt/oracle/ords/config
+	java -jar -Xmx1024M /opt/oracle/ords/${CONTEXT}.war configdir /opt/oracle/ords/config
 
 	systemctl enable ords
 	systemctl restart ords

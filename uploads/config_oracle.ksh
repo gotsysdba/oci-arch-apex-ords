@@ -7,9 +7,10 @@ typeset -r  IFS_ORIG=$IFS
 typeset -rx SCRIPT_NAME="${0##*/}"
 typeset -rx SCRIPTDIR="/tmp/uploads"
 
-typeset -r ORDS_USER="ORDS_PUBLIC_USER_OCI"
 typeset -r ORDS_DIR="/opt/oracle/ords"
-typeset -r STANDALONE_ROOT="${ORDS_DIR}/config/ords/standalone/doc_root"
+typeset -r CONTEXT="ords"
+typeset -r ORDS_USER="ORDS_PUBLIC_USER_OCI"
+typeset -r ORDS_PLGW="ORDS_PLSQL_GATEWAY_OCI"
 
 #------------------------------------------------------------------------------
 # LOCAL FUNCTIONS
@@ -38,67 +39,72 @@ function run_sql {
 	return ${_RC}
 }
 
-function obj_storage_native {
+function create_user {
 	typeset -i _RC=0
 	typeset -r _PASS=$1
 	typeset -r _DBNAME=$2
-	typeset -r _USER=$3
-	typeset -r _TENANCY=$4
-	typeset -r _PRIVKEY=$5
-	typeset -r _FINGER=$6
+	typeset -r _USERNAME=$3
 
-	typeset -r _SQL="
+	typeset -r _CREATE_USER="
+		DECLARE
+			L_USER  VARCHAR2(255);
 		BEGIN
-			DBMS_CLOUD.CREATE_CREDENTIAL (
-				 credential_name => 'OCI_NATIVE_CRED',
-				,user_ocid       => ${_USER}
-				,tenancy_ocid    => ${_TENANCY}
-				,private_key     => ${_PRIVKEY}
-				,fingerprint     => ${_FINGER}
-			);
+			DBMS_OUTPUT.PUT_LINE('Configuring ${_USERNAME}');
+			BEGIN
+				SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='${_USERNAME}';
+				DBMS_OUTPUT.PUT_LINE('Modifying ${_USERNAME}');
+				execute immediate 'ALTER USER \"${_USERNAME}\" IDENTIFIED BY \"${_PASS}\"';
+			EXCEPTION WHEN NO_DATA_FOUND THEN
+				DBMS_OUTPUT.PUT_LINE('Creating ${_USERNAME}');
+				execute immediate 'CREATE USER \"${_USERNAME}\" IDENTIFIED BY \"${_PASS}\"';
+			END;
 		END;
 		/
-		ALTER DATABASE PROPERTY SET DEFAULT_CREDENTIAL = 'ADMIN.OCI_NATIVE_CRED';
-		"
+		GRANT CONNECT TO ${_USERNAME};
+		ALTER USER ${_USERNAME} PROFILE ORA_APP_PROFILE;"
 
-	run_sql "${_PASS}" "${_DBNAME}" "${_SQL}"
+	run_sql "${_PASS}" "${_DBNAME}" "${_CREATE_USER}"
 	_RC=$?
 
 	return ${_RC}
 }
 
-function set_passwords {
+function config_user {
 	typeset -i _RC=0
 	typeset -r _PASS=$1
 	typeset -r _DBNAME=$2
 
-	typeset -r _SQL="
-		DECLARE
-			L_USER  VARCHAR2(255);
-		BEGIN
-			DBMS_OUTPUT.PUT_LINE('Configuring ${ORDS_USER}');
+	create_user "${_PASS}" "${_DBNAME}" "${ORDS_USER}"
+	_RC=$?
+
+	create_user "${_PASS}" "${_DBNAME}" "${ORDS_PLGW}"
+	_RC=$(( _RC + $? ))
+
+	if (( _RC == 0 )); then
+		typeset -r _PUBLIC_SQL="
 			BEGIN
-				SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='${ORDS_USER}';
-				DBMS_OUTPUT.PUT_LINE('Modifying ${ORDS_USER}');
-				execute immediate 'ALTER USER \"${ORDS_USER}\" IDENTIFIED BY \"${_PASS}\"';
-			EXCEPTION WHEN NO_DATA_FOUND THEN
-				DBMS_OUTPUT.PUT_LINE('Creating ${ORDS_USER}');
-				execute immediate 'CREATE USER \"${ORDS_USER}\" IDENTIFIED BY \"${_PASS}\"';
-			END;
-			DBMS_OUTPUT.PUT_LINE('Giving ${ORDS_USER} the Runtime Role');
-			BEGIN
+				DBMS_OUTPUT.PUT_LINE('Giving ${ORDS_USER} the Runtime Role');
 				ORDS_ADMIN.PROVISION_RUNTIME_ROLE (
 					p_user => '${ORDS_USER}',
 					p_proxy_enabled_schemas => TRUE
 				);
 			END;
-		END;
-		/
-		GRANT CONNECT TO ${ORDS_USER};
-		ALTER USER ${ORDS_USER} PROFILE ORA_APP_PROFILE;"
+			/"
 
-	run_sql "${_PASS}" "${_DBNAME}" "${_SQL}"
-	_RC=$?
+		run_sql "${_PASS}" "${_DBNAME}" "${_PUBLIC_SQL}"
+
+		typeset -r _GATEWAY_SQL="
+			ALTER USER ${ORDS_PLGW} GRANT CONNECT THROUGH ${ORDS_USER};
+			BEGIN
+				ORDS_ADMIN.CONFIG_PLSQL_GATEWAY (
+					p_runtime_user => '${ORDS_USER}',
+					p_plsql_gateway_user => '${ORDS_PLGW}'
+				);
+			END;
+			/"
+
+		run_sql "${_PASS}" "${_DBNAME}" "${_GATEWAY_SQL}"
+	fi
 
 	return ${_RC}
 }
@@ -142,7 +148,6 @@ function write_apex_pu {
 		<entry key="db.username">${ORDS_USER}</entry>
 		<entry key="db.password">!${_PASS}</entry>
 		<entry key="db.wallet.zip.service">${_DBNAME}_TP</entry>
-		<entry key="plsql.gateway.enabled">true</entry>
 		<entry key="db.wallet.zip"><![CDATA[${_WALLET}]]></entry>
 		</properties>
 	EOF
@@ -172,7 +177,7 @@ function write_defaults {
 		<entry key="feature.sdw">false</entry>
 		<entry key="restEnabledSql.active">true</entry>
 		<entry key="database.api.enabled">false</entry>
-		<entry key="misc.defaultPage">f?p=DEFAULT:1</entry>
+		<entry key="misc.defaultPage">f?p=DEFAULT</entry>
 		</properties>
 	EOF
 	if [[ ! -f ${_DIR}/${_FILE} ]]; then
@@ -189,33 +194,17 @@ function write_standalone_properties {
 	typeset -r _FILE="standalone.properties"
 	typeset -r _DIR=$1
 	typeset -r _APEX_VERSION=$2
+	typeset -r _CONTEXT=$3
+	typeset -r _STANDALONE_ROOT=$4
 
 	mkdir -p ${_DIR}
 	cat > ${_DIR}/${_FILE} <<- EOF
 		jetty.port=8080
-		standalone.context.path=/ords
-		standalone.doc.root=${STANDALONE_ROOT}
+		standalone.context.path=/${_CONTEXT}
+		standalone.doc.root=${_STANDALONE_ROOT}
 		standalone.scheme.do.not.prompt=true
+		standalone.static.context.path=/i
 	EOF
-	if [[ ! -f ${_DIR}/${_FILE} ]]; then
-		print -- "ERROR: Unable to write ${_DIR}/${_FILE}"
-		_RC=1
-	else
-		print -- "Wrote ${_DIR}/${_FILE}"
-		mkdir -p ${STANDALONE_ROOT}
-		cat > ${STANDALONE_ROOT}/index.html <<- EOF
-			<!DOCTYPE html>
-			<html>
-				<head>
-					<title>No Default Application</title>
-				</head>
-				<body>
-					<p>Sorry, a DEFAULT Application has not yet been configured.</p>
-				</body>
-			</html>
-		EOF
-	fi
-
 	return ${_RC}
 }
 
@@ -226,15 +215,11 @@ if [[ $(whoami) != "oracle" ]]; then
 	usage && exit 1
 fi
 
-while getopts :a:b:c:d:t:p:v:h args; do
+while getopts :t:p:v:h args; do
 	case $args in
-		t) typeset -r MYTARGET=${OPTARG} ;;
-		p) typeset -r MYPASSWORD=${OPTARG} ;;
-		v) typeset -r MYAPEX_VERSION=${OPTARG} ;;
-		a) typeset -r MYUSER=${OPTARG} ;;
-		b) typeset -r MYTENANCY=${OPTARG} ;;
-		c) typeset -r MYPRIVKEY=${OPTARG} ;;
-		d) typeset -r MYFINGER=${OPTARG} ;;
+		t) typeset -r  MYTARGET=${OPTARG} ;;
+		p) typeset -r  MYPASSWORD=${OPTARG} ;;
+		v) typeset -r  MYAPEX_VERSION=${OPTARG} ;;
 		h) usage ;;
 	esac
 done
@@ -246,6 +231,7 @@ fi
 if [[ ! -d ${ORDS_DIR} ]]; then
 	print -- "ERROR: Cannot find ${ORDS_DIR}; is ords installed?" && exit 1
 fi
+typeset -r STANDALONE_ROOT="${ORDS_DIR}/config/${CONTEXT}/standalone/doc_root"
 #------------------------------------------------------------------------------
 # MAIN
 #------------------------------------------------------------------------------
@@ -259,22 +245,19 @@ cp ${SCRIPTDIR}/adb_wallet.zip $TNS_ADMIN/
 base64 -w 0 $TNS_ADMIN/adb_wallet.zip > $TNS_ADMIN/adb_wallet.zip.b64
 unzip -o ${TNS_ADMIN}/adb_wallet.zip -d ${TNS_ADMIN}
 
-set_passwords "${MYPASSWORD}" "${MYTARGET}"
+config_user "${MYPASSWORD}" "${MYTARGET}"
 RC=$?
 
 set_image_cdn "${MYPASSWORD}" "${MYTARGET}" "${MYAPEX_VERSION}"
 RC=$(( RC + $? ))
 
-obj_storage_native "${MYPASSWORD}" "${MYTARGET}" "${MYUSER}" "${MYTENANCY}" "${MYPRIVKEY}" "${MYFINGER}"
+write_apex_pu "${ORDS_DIR}/config/${CONTEXT}/conf" "${MYPASSWORD}" "${MYTARGET}" "$TNS_ADMIN/adb_wallet.zip.b64"
 RC=$(( RC + $? ))
 
-write_apex_pu "${ORDS_DIR}/config/ords/conf" "${MYPASSWORD}" "${MYTARGET}" "$TNS_ADMIN/adb_wallet.zip.b64"
+write_defaults "${ORDS_DIR}/config/${CONTEXT}" 
 RC=$(( RC + $? ))
 
-write_defaults "${ORDS_DIR}/config/ords" 
-RC=$(( RC + $? ))
-
-write_standalone_properties "${ORDS_DIR}/config/ords/standalone" "${MYAPEX_VERSION}"
+write_standalone_properties "${ORDS_DIR}/config/${CONTEXT}/standalone" "${MYAPEX_VERSION}" "${CONTEXT}" "${STANDALONE_ROOT}"
 RC=$(( RC + $? ))
 
 print -- "FINISHED: Return Code: ${RC}"
