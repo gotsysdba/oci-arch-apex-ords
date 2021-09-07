@@ -15,8 +15,8 @@ locale: "en"
 variableGroups:
   - title: "Basic Hidden"
     variables:
-    - compartment_ocid
     - tenancy_ocid
+    - compartment_ocid
     - region
     visible: false
 
@@ -24,7 +24,6 @@ variableGroups:
     variables:
     - proj_abrv
     - size
-    - show_advanced  
 
   - title: "Extras Hidden"
     variables:
@@ -33,34 +32,17 @@ variableGroups:
       - private_key_path
     visible: false
 
-  - title: "Network Configuration"
-    variables:
-      - network_strategy
-      - vcn_id
-      - vcn_display_name
-      - vcn_cidr_block
-      - vcn_dns_label
-      - subnet_type
-      - subnet_span
-      - subnet_id
-      - subnet_display_name
-      - subnet_cidr_block
-      - subnet_dns_label
-    visible:
-      and:
-        - show_advanced
-
   - title: "OCI Services Hidden"
     variables:
-      - adb_cpu_core_count
-      - adb_storage_size_in_tbs
-      - adb_dataguard
-      - adb_db_version
       - adb_license_model
+      - adb_cpu_core_count
+      - adb_dataguard
       - flex_lb_min_shape
       - flex_lb_max_shape
       - compute_instances
       - compute_flex_shape_ocpus
+      - adb_storage_size_in_tbs
+      - adb_db_version
       - compute_os
       - linux_os_version
       - bastion_user
@@ -68,6 +50,15 @@ variableGroups:
       - vcn_is_ipv6enabled
       - public_subnet_cidr
       - private_subnet_cidr
+    visible: false
+
+  - title: "Locals Hidden"
+    variables:
+      - compute_flexible_shapes
+      - is_always_free
+      - adb_private_endpoint
+      - compute_shape
+      - is_flexible_shape
     visible: false
 
 variables:
