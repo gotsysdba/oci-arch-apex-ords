@@ -30,14 +30,14 @@ resource "null_resource" "ords_config" {
       type                = "ssh"
       user                = var.bastion_user
       host                = data.oci_core_vnic.instance_vnic.private_ip_address
-      private_key         = var.ssh_private_key
+      private_key         = tls_private_key.example_com.private_key_pem
 
       agent               = false
       timeout             = "10m"
       bastion_host        = "host.bastion.${var.region}.oci.oraclecloud.com"
       bastion_port        = "22"
       bastion_user        = oci_bastion_session.bastion_service_ssh.id
-      bastion_private_key = var.ssh_private_key
+      bastion_private_key = tls_private_key.example_com.private_key_pem
     }
     source      = "uploads"
     destination = "/tmp"
@@ -48,19 +48,19 @@ resource "null_resource" "ords_config" {
       type                = "ssh"
       user                = var.bastion_user
       host                = data.oci_core_vnic.instance_vnic.private_ip_address
-      private_key         = var.ssh_private_key
+      private_key         = tls_private_key.example_com.private_key_pem
 
       agent               = false
       timeout             = "10m"
       bastion_host        = "host.bastion.${var.region}.oci.oraclecloud.com"
       bastion_port        = "22"
       bastion_user        = oci_bastion_session.bastion_service_ssh.id
-      bastion_private_key = var.ssh_private_key
+      bastion_private_key = tls_private_key.example_com.private_key_pem
     }
     inline = [
       "sudo chmod +x /tmp/uploads/config_*.ksh",
       "sudo -u root /tmp/uploads/config_root.ksh -s PRE",
-      "sudo -u oracle /tmp/uploads/config_oracle.ksh -t ${local.db_name} -p \"${local.password}\" -v ${local.apex_ver} -a ${var.user_ocid} -b ${var.tenancy_ocid} -c ${var.ssh_private_key} -d ${var.fingerprint}",
+      "sudo -u oracle /tmp/uploads/config_oracle.ksh -t ${local.db_name} -p \"${local.password}\" -v ${local.apex_ver}",
       "sudo -u root /tmp/uploads/config_root.ksh -s POST",
     ]
   }
