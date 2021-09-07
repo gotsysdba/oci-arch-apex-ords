@@ -15,6 +15,7 @@ resource "oci_data_safe_data_safe_private_endpoint" "data_safe_private_endpoint"
 
 resource "oci_data_safe_target_database" "data_safe_target_database" {
   count          = local.is_always_free ? 0 : 1
+  depends_on     = [oci_database_autonomous_database.autonomous_database]
   compartment_id = var.compartment_ocid
   display_name   = format("%s-data-safe-target-database", var.proj_abrv)
   database_details {

@@ -30,7 +30,7 @@ variableGroups:
     variables:
       - user_ocid
       - fingerprint
-      - api_private_key_path
+      - private_key_path
     visible: false
 
   - title: "Network Configuration"

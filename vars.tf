@@ -7,9 +7,15 @@ variable "compartment_ocid" {}
 variable "region" {}
 
 // Extra Hidden
-variable "user_ocid" {}
-variable "fingerprint" {}
-variable "api_private_key_path" {}
+variable "user_ocid" {
+  default = ""
+}
+variable "fingerprint" {
+  default = ""
+}
+variable "private_key_path" {
+  default = ""
+}
 
 // General Configuration
 variable "proj_abrv" {
