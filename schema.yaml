@@ -24,6 +24,7 @@ variableGroups:
     variables:
     - proj_abrv
     - size
+    - adb_license_model
 
   - title: "Extras Hidden"
     variables:
@@ -34,7 +35,6 @@ variableGroups:
 
   - title: "OCI Services Hidden"
     variables:
-      - adb_license_model
       - adb_cpu_core_count
       - adb_dataguard
       - flex_lb_min_shape
@@ -83,4 +83,13 @@ variables:
       - M
       - L
       - XL
+    required: true
+
+  adb_license_model:
+    type: enum
+    title: "ADB License"
+    default: "BRING_YOUR_OWN_LICENSE"
+    enum:
+      - BRING_YOUR_OWN_LICENSE
+      - LICENSE_INCLUDED
     required: true
