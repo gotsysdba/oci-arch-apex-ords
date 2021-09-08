@@ -1,28 +1,32 @@
 # oci-arch-apex-ords
 OCI APEX Application using Customer Managed ORDS
 
+
 ## Architecture
-This Terraform IaC supports 5 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L, XL with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
+This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
 
-|                              | ALF   | S     | M    | L    | XL   |
-| ---------------------------- | ----- | ----- | ---- | ---- | ---- |
-| **Compute Instances (CI)**   | 1     | 1     | 2    | 3    | 3    |
-| **CI Horizontal Scale**      | 1     | 3     | 6    | 9    | 9    |
-| **CI CPU Initial**           | 1     | 1     | 2    | 4    | 4    |
-| **CI CPU Vertical Scale**    | 1     | 2     | 4    | 8    | 8    |
-| **CI Memory Initial**        | 1     | 16    | 32   | 64   | 64   |
-| **CI Memory Scale**          | N/A   | 32    | 64   | 192  | 192  |
-| **ADB CPU Initial**          | 1     | 1     | 2    | 4    | 4    |
-| **ADB CPU Scale**            | N/A   | 3     | 6    | 12   | 12   |
-| **ADB Storage (TB)**         | 1     | 1     | 1    | 1    | 1    |
-| **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  | 100  |
-| **Load Balancer (Mbps Max)** | 10    | 480   | 4990 | 4990 | 4990 |
-| **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE | TRUE |
-| **Dataguard**                | FALSE | FALSE | TRUE | TRUE | TRUE |
+|                              | ALF   | S     | M    | L    | 
+| ---------------------------- | ----- | ----- | ---- | ---- |
+| **Compute Instances (CI)**   | 1     | 1     | 2    | 3    | 
+| **CI Horizontal Scale**      | 1     | 3     | 6    | 9    |
+| **CI CPU Initial**           | 1     | 1     | 2    | 4    |
+| **CI CPU Vertical Scale**    | 1     | 2     | 4    | 8    |
+| **CI Memory Initial**        | 1     | 16    | 32   | 64   |
+| **CI Memory Scale**          | N/A   | 32    | 64   | 192  |
+| **ADB CPU Initial**          | 1     | 1     | 2    | 4    |
+| **ADB CPU Scale**            | N/A   | 3     | 6    | 12   |
+| **ADB Storage (TB)**         | 1     | 1     | 1    | 1    |
+| **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  |
+| **Load Balancer (Mbps Max)** | 10    | 480   | 4990 | 4990 |
+| **High Availabity**          | FALSE | FALSE | TRUE | TRUE |
+| **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE |
+| **Dataguard**                | FALSE | FALSE | TRUE | TRUE |
 
 
-### XL Architecture Diagram
-![OCI XL APEX/ORDS Architecture](images/XL_APEX_ORDS.png "XL APEX/ORDS Architecture")
+### L Architecture Diagram
+![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.png "L APEX/ORDS Architecture")
+
+[Other Sizes Architecture Diagrams](ARCHITECTURE.md)
 
 ## Assumptions
 * An existing OCI tenancy; either Paid or Always Free
@@ -46,7 +50,7 @@ You'll need to update three fields with values you can find in the [console](htt
 * TF_VAR_tenancy_ocid
 * TF_VAR_user_ocid
 
-To change the default ALF (Always Free) sizing, manaully set TF_VAR_size to either S, M, L, or XL; for example:
+To change the default ALF (Always Free) sizing, manaully set TF_VAR_size to either S, M, or L; for example:
 
 ```
 export TF_VAR_size=S
@@ -97,6 +101,9 @@ lb_address = tolist([
 
 You can also look up the Load Balancer IP via the OCI Console.
 Placing that IPAddress in a web browser will redirect you to the secure APEX port and prompt for the ADB's ADMIN password.  The ADMIN password was randomised during provisioning and is unknown.  Reset it in the OCI console to login.
+
+# FAQs
+[Frequently Asked Questions](FAQS.md)
 
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
 [magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/ukjola/oci-arch-apex-ords/releases/latest/download/oci-arch-apex-ords.zip

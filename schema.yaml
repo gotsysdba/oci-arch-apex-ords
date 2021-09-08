@@ -82,5 +82,4 @@ variables:
       - S
       - M
       - L
-      - XL
     required: true
