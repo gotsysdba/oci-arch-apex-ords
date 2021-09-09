@@ -208,7 +208,7 @@ function write_standalone_properties {
 	return ${_RC}
 }
 
-write_index {
+function write_index {
 	typeset -i _RC=0
 	typeset -r _FILE="index.html"
 	typeset -r _DIR=$1
