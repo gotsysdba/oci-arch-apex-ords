@@ -2,49 +2,55 @@
 OCI APEX Application using Customer Managed ORDS
 
 ## Architecture
-This Terraform IaC supports 5 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L, XL with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
+This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
 
-|                              | ALF   | S     | M    | L    | XL   |
-| ---------------------------- | ----- | ----- | ---- | ---- | ---- |
-| **Compute Instances (CI)**   | 1     | 1     | 2    | 3    | 3    |
-| **CI Horizontal Scale**      | 1     | 3     | 6    | 9    | 9    |
-| **CI CPU Initial**           | 1     | 1     | 2    | 4    | 4    |
-| **CI CPU Vertical Scale**    | 1     | 2     | 4    | 8    | 8    |
-| **CI Memory Initial**        | 1     | 16    | 32   | 64   | 64   |
-| **CI Memory Scale**          | N/A   | 32    | 64   | 192  | 192  |
-| **ADB CPU Initial**          | 1     | 1     | 2    | 4    | 4    |
-| **ADB CPU Scale**            | N/A   | 3     | 6    | 12   | 12   |
-| **ADB Storage (TB)**         | 1     | 1     | 1    | 1    | 1    |
-| **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  | 100  |
-| **Load Balancer (Mbps Max)** | 10    | 480   | 4990 | 4990 | 4990 |
-| **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE | TRUE |
-| **Dataguard**                | FALSE | FALSE | TRUE | TRUE | TRUE |
+|                              | ALF   | S     | M    | L    | 
+| ---------------------------- | ----- | ----- | ---- | ---- |
+| **Compute Instances (CI)**   | 1     | 1     | 2    | 3    | 
+| **CI Horizontal Scale**      | 1     | 3     | 6    | 9    |
+| **CI CPU Initial**           | 1     | 1     | 2    | 4    |
+| **CI CPU Vertical Scale**    | 1     | 2     | 4    | 8    |
+| **CI Memory Initial**        | 1     | 16    | 32   | 64   |
+| **CI Memory Scale**          | N/A   | 32    | 64   | 192  |
+| **ADB CPU Initial**          | 1     | 1     | 2    | 4    |
+| **ADB CPU Scale**            | N/A   | 3     | 6    | 12   |
+| **ADB Storage (TB)**         | 1     | 1     | 1    | 1    |
+| **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  |
+| **Load Balancer (Mbps Max)** | 10    | 480   | 4990 | 4990 |
+| **High Availabity**          | FALSE | FALSE | TRUE | TRUE |
+| **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE |
+| **Dataguard**                | FALSE | FALSE | TRUE | TRUE |
 
 
-### XL Architecture Diagram
-![OCI XL APEX/ORDS Architecture](images/XL_APEX_ORDS.png "XL APEX/ORDS Architecture")
+### L Architecture Diagram
+![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.png "L APEX/ORDS Architecture")
+
+* [Other Sizes Architecture Diagrams](ARCHITECTURE.md)
+* [Architecture Details](ARCHITECTURE_DETAILS.md)
 
 ## Assumptions
 * An existing OCI tenancy; either Paid or Always Free
 
 ## Load Balancer Certificates
-Example self-signed certificates are created by terraform for testing purposes only and should not be used for Production.  Update the Load Balancer in the OCI console with real certificates; or utilise LetsEncrypt/CertBot as documented here: (LINK Coming)
+Example self-signed certificates are created by terraform for testing purposes only and should not be used for Production.  Update the Load Balancer in the OCI console with real certificates; or utilise LetsEncrypt/CertBot as documented in the [oci-lbaas-letsencrypt repository](https://github.com/ukjola/oci-lbaas-letsencrypt)
 
 ## Installation
-### Resource Manager
-(Coming Soon)
+### **Resource Manager**
+Deploy this Stack using OCI Resource Manager:
 
-### Terraform CLI
-### Setup Environment Variables
+[![Deploy to Oracle Cloud][magic_button]][magic_arch_stack]
+
+### **Terraform CLI**
+#### **Setup Environment Variables**
 Update the [terraform-env.sh](terraform-env.sh) file. 
 
-You'll need to update three fields with values you can find in the [console](https://console.us-phoenix-1.oraclecloud.com/):
+You'll need to update three fields with values you can find in the [OCI console](https://console.us-phoenix-1.oraclecloud.com/):
 
 * TF_VAR_compartment_ocid
 * TF_VAR_tenancy_ocid
 * TF_VAR_user_ocid
 
-To change the default ALF (Always Free) sizing, manaully set TF_VAR_size to either S, M, L, or XL; for example:
+To change the default ALF (Always Free) sizing, manaully set TF_VAR_size to either S, M, or L; for example:
 
 ```
 export TF_VAR_size=S
@@ -68,8 +74,7 @@ TF_VAR_user_ocid=ocid1.user....ewc5a
 
 It is recommended to have multiple workspaces of the VCS repository for each sized deployment due to tfstate files.
 
-## Deploy Using the Terraform CLI
-### Install Terraform
+#### **Install Terraform**
 Instructions on installing Terraform are [here](https://www.terraform.io/intro/getting-started/install.html).  The manual, pre-compiled binary installation is, by far, the easiest and quickest way to start using Terraform.
 
 You can test that the install was successful by running the command:
@@ -77,7 +82,7 @@ You can test that the install was successful by running the command:
 
 You should see usage information returned.
 
-### Build the Architecture
+#### **Build the Architecture**
 Once the environment has been setup.  Run the following to build the infrastructure:
 
 ```
@@ -97,35 +102,8 @@ lb_address = tolist([
 You can also look up the Load Balancer IP via the OCI Console.
 Placing that IPAddress in a web browser will redirect you to the secure APEX port and prompt for the ADB's ADMIN password.  The ADMIN password was randomised during provisioning and is unknown.  Reset it in the OCI console to login.
 
-# FAQ
-**Q: Why front the ADB with ORDS Compute Instances**
+# FAQs
+[Frequently Asked Questions](FAQS.md)
 
-**A:** The primary reason is to allow Friendly (i.e. https://&lt;www.YourOrganisation.com&gt;), TLS enabled URLs to APEX.  This is achived via an OCI Load Balancer which can be configured against a OCI Compute Instance running ORDS.
-
----
-**Q: How do I make my APEX Application the default when accessing the URL**
-
-**A:** The config_oracle.ksh script adds `<entry key="misc.defaultPage">f?p=DEFAULT</entry>` to the defaults.xml configuration.  The DEFAULT part of the configuration is an alias that can be set on an application.  Once an APEX Application is deployed, change its alias to DEFAULT and the end-user will be automatically redirected to it when accessing the URL:
-*Shared Components* -> *Application Definition Attributes* -> Change *Application Alias*
-
----
-**Q: How do I setup "Friendly URLs"**
-
-**A:** 
-
----
-**Q: How do I update the HTTPS certificate**
-
-**A:** The infrastructure will be deployed with a self-signed certificate which will result in an warning message when visiting the APEX Application.  A valid certificate, registered against the "Friendly URL", should be applied to the Load Balancer resource before Productionisation.  Details can be found in the [SSL Certificate Management Documenation](https://docs.oracle.com/en-us/iaas/Content/Balance/Tasks/managingcertificates.htm).  Note that LetsEncrypt/CertBot can be used to manage the Load Balancer certificate as per the below Q/A.
-
---- 
-**Q: Can I use LetsEncrypt/CertBot for Certificate Management?**
-
-**A:** Yes.  
-
----
-**Q: How do I access the APEX Admin Page**
-
-**A:** Where yourDomain is the IP Address of the Load Balancer, or the Domain Name after DNS updates: 
-Administration Services: https://yourDomain/ords/apex_admin
-Workspace Login:         https://yourDomain/ords/f?p=4550
+[magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
+[magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/ukjola/oci-arch-apex-ords/oci-arch-apex-ords.zip

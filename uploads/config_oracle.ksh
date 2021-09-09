@@ -208,6 +208,28 @@ function write_standalone_properties {
 	return ${_RC}
 }
 
+function write_index {
+	typeset -i _RC=0
+	typeset -r _FILE="index.html"
+	typeset -r _DIR=$1
+
+	#Ensure the webroot exists for CertBot/LetsEncrypt purposes
+	#Add a redirect index to the DEFAULT application
+	mkdir -p ${_DIR}
+
+	cat > ${_DIR}/${_FILE} <<- EOF
+		<!DOCTYPE HTML>
+		<meta charset="UTF-8">
+		<meta http-equiv="refresh" content="1; url=./ords/f?p=DEFAULT">
+		<script>
+		window.location.href = "./ords/f?p=DEFAULT"
+		</script>
+		<title>Page Redirection</title>
+		If you are not redirected automatically, follow this <a href='./ords/f?p=DEFAULT"'>link</a>
+	EOF
+	return ${_RC}
+}
+
 #------------------------------------------------------------------------------
 # INIT
 #------------------------------------------------------------------------------
@@ -259,6 +281,8 @@ RC=$(( RC + $? ))
 
 write_standalone_properties "${ORDS_DIR}/config/${CONTEXT}/standalone" "${MYAPEX_VERSION}" "${CONTEXT}" "${STANDALONE_ROOT}"
 RC=$(( RC + $? ))
+
+write_index "${STANDALONE_ROOT}"
 
 print -- "FINISHED: Return Code: ${RC}"
 exit $RC

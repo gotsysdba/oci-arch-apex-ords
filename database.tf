@@ -29,9 +29,7 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   nsg_ids                  = local.adb_private_endpoint ? [oci_core_network_security_group.security_group_adb[0].id] : null
   private_endpoint_label   = local.adb_private_endpoint ? "ADBPrivateEndpoint" : null
   subnet_id                = local.adb_private_endpoint ? oci_core_subnet.subnet_private[0].id : null
-  state                    = "AVAILABLE"
   // This should be variabled but there's an issue with creating DG on initial creation
-  // 
   is_data_guard_enabled    = false
   lifecycle {
     ignore_changes = all

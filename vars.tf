@@ -7,9 +7,15 @@ variable "compartment_ocid" {}
 variable "region" {}
 
 // Extra Hidden
-variable "user_ocid" {}
-variable "fingerprint" {}
-variable "api_private_key_path" {}
+variable "user_ocid" {
+  default = ""
+}
+variable "fingerprint" {
+  default = ""
+}
+variable "private_key_path" {
+  default = ""
+}
 
 // General Configuration
 variable "proj_abrv" {
@@ -25,7 +31,6 @@ variable "adb_license_model" {
 variable "adb_cpu_core_count" {
   type = map
   default = {
-    "XL"  = 4
     "L"   = 4
     "M"   = 2
     "S"   = 1
@@ -36,7 +41,6 @@ variable "adb_cpu_core_count" {
 variable "adb_dataguard" {
   type = map
   default = {
-    "XL"  = true
     "L"   = true
     "M"   = true
     "S"   = false
@@ -47,7 +51,6 @@ variable "adb_dataguard" {
 variable "flex_lb_min_shape" {
   type = map
   default = {
-    "XL"  = 100
     "L"   = 100
     "M"   = 100
     "S"   = 10
@@ -58,7 +61,6 @@ variable "flex_lb_min_shape" {
 variable "flex_lb_max_shape" {
   type = map
   default = {
-    "XL"  = 4990
     "L"   = 4990
     "M"   = 4990
     "S"   = 480
@@ -70,7 +72,6 @@ variable "flex_lb_max_shape" {
 variable "compute_instances" {
   type = map
   default = {
-    "XL"  = 3
     "L"   = 3
     "M"   = 2
     "S"   = 1
@@ -82,7 +83,6 @@ variable "compute_instances" {
 variable "compute_flex_shape_ocpus" {
   type = map
   default = {
-    "XL"  = 4
     "L"   = 4
     "M"   = 2
     "S"   = 1
