@@ -1,5 +1,7 @@
 # oci-arch-apex-ords
-![Oracle APEX](images/APEX_Logo.png "Oracle APEX") OCI APEX Application using Customer Managed ORDS
+![Oracle APEX](images/APEX_Logo.png "Oracle APEX") 
+
+Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 
 ## Architecture
 This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
