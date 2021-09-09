@@ -1,7 +1,6 @@
 # oci-arch-apex-ords
 OCI APEX Application using Customer Managed ORDS
 
-
 ## Architecture
 This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
 
@@ -26,7 +25,8 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 ### L Architecture Diagram
 ![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.png "L APEX/ORDS Architecture")
 
-[Other Sizes Architecture Diagrams](ARCHITECTURE.md)
+* [Other Sizes Architecture Diagrams](ARCHITECTURE.md)
+* [Architecture Details](ARCHITECTURE_DETAILS.md)
 
 ## Assumptions
 * An existing OCI tenancy; either Paid or Always Free
@@ -106,4 +106,4 @@ Placing that IPAddress in a web browser will redirect you to the secure APEX por
 [Frequently Asked Questions](FAQS.md)
 
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
-[magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/ukjola/oci-arch-apex-ords/releases/latest/download/oci-arch-apex-ords.zip
+[magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/ukjola/oci-arch-apex-ords/oci-arch-apex-ords.zip
