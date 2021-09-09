@@ -32,7 +32,7 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 * An existing OCI tenancy; either Paid or Always Free
 
 ## Load Balancer Certificates
-Example self-signed certificates are created by terraform for testing purposes only and should not be used for Production.  Update the Load Balancer in the OCI console with real certificates; or utilise LetsEncrypt/CertBot as documented here: (LINK Coming)
+Example self-signed certificates are created by terraform for testing purposes only and should not be used for Production.  Update the Load Balancer in the OCI console with real certificates; or utilise LetsEncrypt/CertBot as documented in the [oci-lbaas-letsencrypt repository](https://github.com/ukjola/oci-lbaas-letsencrypt)
 
 ## Installation
 ### **Resource Manager**
@@ -44,7 +44,7 @@ Deploy this Stack using OCI Resource Manager:
 #### **Setup Environment Variables**
 Update the [terraform-env.sh](terraform-env.sh) file. 
 
-You'll need to update three fields with values you can find in the [console](https://console.us-phoenix-1.oraclecloud.com/):
+You'll need to update three fields with values you can find in the [OCI console](https://console.us-phoenix-1.oraclecloud.com/):
 
 * TF_VAR_compartment_ocid
 * TF_VAR_tenancy_ocid
