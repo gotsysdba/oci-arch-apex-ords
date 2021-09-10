@@ -25,7 +25,7 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 
 
 ### L Architecture Diagram
-![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.png "L APEX/ORDS Architecture")
+![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.drawio.png "L APEX/ORDS Architecture")
 
 * [Other Sizes Architecture Diagrams](ARCHITECTURE.md)
 * [Architecture Details](ARCHITECTURE_DETAILS.md)

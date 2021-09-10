@@ -6,6 +6,7 @@
 /.vscode
 /backup
 /uploads/*.zip
+/.DS_Store
 
 ##############################################################################
 # Terraform Generic
