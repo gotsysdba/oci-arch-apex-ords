@@ -3,6 +3,8 @@
 
 Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 
+**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  This new feature is not applicable to Always Free resources as explained in the [FAQS](FAQS.md).  For Pain Tenancies, an IaC taking advantage of this new feature can be found here:[oci-arch-apex-vanity](https://github.com/ukjola/oci-arch-apex-vanity)
+
 ## Architecture
 This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
 
@@ -18,7 +20,7 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 | **ADB CPU Scale**            | N/A   | 3     | 6    | 12   |
 | **ADB Storage (TB)**         | 1     | 1     | 1    | 1    |
 | **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  |
-| **Load Balancer (Mbps Max)** | 10    | 480   | 4990 | 4990 |
+| **Load Balancer (Mbps Max)** | 10    | 480   | 1250 | 1250 |
 | **High Availabity**          | FALSE | FALSE | TRUE | TRUE |
 | **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE |
 | **Dataguard**                | FALSE | FALSE | TRUE | TRUE |
@@ -74,7 +76,7 @@ TF_VAR_api_private_key_path=~/.oci/oci_api_key.pem
 TF_VAR_user_ocid=ocid1.user....ewc5a
 ```
 
-It is recommended to have multiple workspaces of the VCS repository for each sized deployment due to tfstate files.
+It is recommended to utilise [Terraform Workspaces](https://www.terraform.io/docs/language/state/workspaces.html) for each sized deployment due to tfstate files.
 
 #### **Install Terraform**
 Instructions on installing Terraform are [here](https://www.terraform.io/intro/getting-started/install.html).  The manual, pre-compiled binary installation is, by far, the easiest and quickest way to start using Terraform.
