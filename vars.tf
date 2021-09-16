@@ -61,8 +61,8 @@ variable "flex_lb_min_shape" {
 variable "flex_lb_max_shape" {
   type = map
   default = {
-    "L"   = 4990
-    "M"   = 4990
+    "L"   = 1250
+    "M"   = 1250
     "S"   = 480
     "ALF" = 10
   }
