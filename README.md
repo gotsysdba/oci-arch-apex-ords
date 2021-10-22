@@ -21,7 +21,7 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 | **ADB Storage (TB)**         | 1     | 1     | 1    | 1    |
 | **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  |
 | **Load Balancer (Mbps Max)** | 10    | 480   | 1250 | 1250 |
-| **High Availabity**          | FALSE | FALSE | TRUE | TRUE |
+| **High Availability**        | FALSE | FALSE | TRUE | TRUE |
 | **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE |
 | **Dataguard**                | FALSE | FALSE | TRUE | TRUE |
 
