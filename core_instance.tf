@@ -50,6 +50,7 @@ resource "oci_core_instance" "instance" {
   }
   metadata = {
     ssh_authorized_keys = tls_private_key.example_com.public_key_openssh
+    user_data           = "${base64encode(data.template_file.userdata.rendered)}"
   }
   lifecycle {
     ignore_changes = all
@@ -63,14 +64,12 @@ resource "oci_core_instance" "instance" {
 // Create an ORDS image from the core after ORDS is configured
 resource "oci_core_image" "ords_instance_image" {
   count          = local.is_always_free ? 0 : 1
-  depends_on     = [null_resource.ords_config]
   compartment_id = var.compartment_ocid
   instance_id    = oci_core_instance.instance.id
 }
 
 resource "oci_core_instance_configuration" "instance_configuration" {
   count          = local.is_always_free ? 0 : 1
-  depends_on     = [null_resource.ords_config]
   compartment_id = var.compartment_ocid
   display_name   = format("%s-instance-configuration", var.proj_abrv)
   instance_details { 
@@ -101,7 +100,6 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
 resource "oci_core_instance_pool" "instance_pool" {
   count                     = local.is_always_free ? 0 : 1
-  depends_on                = [null_resource.ords_config]
   compartment_id            = var.compartment_ocid
   instance_configuration_id = oci_core_instance_configuration.instance_configuration[0].id  
 	dynamic "placement_configurations" {
@@ -120,6 +118,7 @@ resource "oci_core_instance_pool" "instance_pool" {
     port             = "8080"
     vnic_selection   = "PrimaryVnic"
   }
+  depends_on = [oci_core_instance.instance]
   lifecycle {
     // Don't readjust the size as will be pooled
     ignore_changes = [size]

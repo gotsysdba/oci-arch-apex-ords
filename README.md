@@ -3,7 +3,11 @@
 
 Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 
-**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  This new feature is not applicable to Always Free resources as explained in the [FAQS](FAQS.md).  For Pain Tenancies, an IaC taking advantage of this new feature can be found here:[oci-arch-apex-vanity](https://github.com/ukjola/oci-arch-apex-vanity)
+**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  This new feature is not applicable to Always Free resources as explained in the [FAQS](FAQS.md).  For Paid Tenancies, an IaC taking advantage of this new feature can be found here:[oci-arch-apex-vanity](https://github.com/ukjola/oci-arch-apex-vanity)
+
+## Release Info
+TAG: 1.0.0 - Uses mTLS for connecting ORDS to the ADB; Terraform Provisioner to stage ADB wallet and ORDS Config
+MAIN: Uses TLS for connecting ORDS to the ADB, eliminating the wallet; cloud-init to configure ORDS
 
 ## Architecture
 This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).

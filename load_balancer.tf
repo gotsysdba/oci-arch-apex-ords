@@ -82,3 +82,118 @@ resource "oci_load_balancer_certificate" "lb_certificate" {
     create_before_destroy = true
   }
 }
+
+resource "oci_load_balancer_rule_set" "lb_rule_set" {
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/sql-developer"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/sign-in/"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/signed-out/"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/sign-in/session"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/_/sql"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/ords/_/db-api/"
+      operator        = "PREFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/_/public-properties/"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "ADD_HTTP_REQUEST_HEADER"
+    header = "APEX-Public-Access"
+    value = "1"
+  }
+  load_balancer_id = oci_load_balancer.lb.id
+  name             = "APEX_Public_Access"
+}

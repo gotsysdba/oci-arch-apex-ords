@@ -28,6 +28,11 @@ variable "adb_license_model" {
   default = "BRING_YOUR_OWN_LICENSE"
 }
 
+// 0 disable; 1 enable - always 0 for ALF
+variable "enable_integration_service" {
+  default = 0
+}
+
 variable "adb_cpu_core_count" {
   type = map
   default = {
@@ -95,7 +100,13 @@ variable "adb_storage_size_in_tbs" {
 }
 
 variable "adb_db_version" {
-  default = "19c"
+  type = map
+  default = {
+    "L"   = "19c"
+    "M"   = "19c"
+    "S"   = "19c"
+    "ALF" = "21c"
+  }
 }
 
 variable "compute_os" {

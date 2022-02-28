@@ -140,7 +140,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_adb_ing
   tcp_options {
     destination_port_range {
       max = 1522
-      min = 1522
+      min = 1521
     }
   }
 }
