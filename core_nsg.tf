@@ -6,7 +6,7 @@
 #####################################################################
 // Security Group for SSH
 resource "oci_core_network_security_group" "security_group_ssh" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-ssh", var.proj_abrv)
 }
@@ -35,7 +35,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_ssh_ing
 
 // Security Group for Load Balancer (lb)
 resource "oci_core_network_security_group" "security_group_lb" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-lb", var.proj_abrv)
 }
@@ -77,7 +77,7 @@ resource  "oci_core_network_security_group_security_rule" "security_group_lb_inr
 
 // Security Group for ORDS
 resource "oci_core_network_security_group" "security_group_ords" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-ords", var.proj_abrv)
 }
@@ -116,7 +116,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_ords_in
 #####################################################################
 resource "oci_core_network_security_group" "security_group_adb" {
   count          = local.is_always_free ? 0 : 1
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-adb", var.proj_abrv)
 }

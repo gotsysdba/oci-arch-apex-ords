@@ -3,7 +3,9 @@
 
 // Basic Hidden
 variable "tenancy_ocid" {}
-variable "compartment_ocid" {}
+variable "compartment_ocid" {
+  default = ""
+}
 variable "region" {}
 
 // Extra Hidden
@@ -127,7 +129,7 @@ variable "vcn_cidr" {
 }
 
 variable "vcn_is_ipv6enabled" {
-  default = false
+  default = true
 }
 
 variable "public_subnet_cidr" {
@@ -154,4 +156,5 @@ locals {
   adb_private_endpoint = var.size != "ALF" ? true  : false
   compute_shape        = var.size != "ALF" ? "VM.Standard.E3.Flex" : "VM.Standard.E2.1.Micro"
   is_flexible_shape    = contains(local.compute_flexible_shapes, local.compute_shape)
+  compartment_ocid     = var.compartment_ocid != "" ? var.compartment_ocid : var.tenancy_ocid
 }

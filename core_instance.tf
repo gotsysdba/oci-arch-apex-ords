@@ -3,7 +3,7 @@
 
 // Get the latest Oracle Linux image
 data "oci_core_images" "images" {
-  compartment_id           = var.compartment_ocid
+  compartment_id           = local.compartment_ocid
   operating_system         = var.compute_os
   operating_system_version = var.linux_os_version
   shape                    = local.compute_shape
@@ -16,7 +16,7 @@ data "oci_core_images" "images" {
 }
 
 resource "oci_core_instance" "instance" {
-  compartment_id      = var.compartment_ocid
+  compartment_id      = local.compartment_ocid
   display_name        = format("%s-ords-core", var.proj_abrv)
   availability_domain = local.availability_domain
   shape               = local.compute_shape
@@ -64,18 +64,18 @@ resource "oci_core_instance" "instance" {
 // Create an ORDS image from the core after ORDS is configured
 resource "oci_core_image" "ords_instance_image" {
   count          = local.is_always_free ? 0 : 1
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   instance_id    = oci_core_instance.instance.id
 }
 
 resource "oci_core_instance_configuration" "instance_configuration" {
   count          = local.is_always_free ? 0 : 1
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   display_name   = format("%s-instance-configuration", var.proj_abrv)
   instance_details { 
     instance_type = "compute"
     launch_details {
-      compartment_id = var.compartment_ocid
+      compartment_id = local.compartment_ocid
       shape          = local.compute_shape
       dynamic "shape_config" {
         for_each = local.is_flexible_shape ? [1] : []
@@ -100,7 +100,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
 resource "oci_core_instance_pool" "instance_pool" {
   count                     = local.is_always_free ? 0 : 1
-  compartment_id            = var.compartment_ocid
+  compartment_id            = local.compartment_ocid
   instance_configuration_id = oci_core_instance_configuration.instance_configuration[0].id  
 	dynamic "placement_configurations" {
 		for_each = data.oci_identity_availability_domains.availability_domains.availability_domains

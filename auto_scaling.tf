@@ -6,7 +6,7 @@
 #####################################################################
 resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
   count          = local.is_always_free ? 0 : 1
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   display_name   = format("%s-auto-scaling-configuration", var.proj_abrv)
   auto_scaling_resources {
     id   = oci_core_instance_pool.instance_pool[0].id

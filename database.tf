@@ -15,7 +15,7 @@ resource "random_password" "autonomous_database_password" {
 
 resource "oci_database_autonomous_database" "autonomous_database" {
   admin_password              = random_password.autonomous_database_password.result
-  compartment_id              = var.compartment_ocid
+  compartment_id              = local.compartment_ocid
   db_name                     = format("%sDB%s", upper(var.proj_abrv), var.size)
   cpu_core_count              = var.adb_cpu_core_count[var.size]
   data_storage_size_in_tbs    = var.adb_storage_size_in_tbs

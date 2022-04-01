@@ -6,7 +6,7 @@
 #####################################################################
 resource "oci_integration_integration_instance" "integration_instance" {
   count                     = local.is_always_free ? 0 : var.enable_integration_service
-  compartment_id            = var.compartment_ocid
+  compartment_id            = local.compartment_ocid
   display_name              = format("%s-auto-integration_instance", var.proj_abrv)
   consumption_model         = "UCM"
   integration_instance_type = "STANDARD"

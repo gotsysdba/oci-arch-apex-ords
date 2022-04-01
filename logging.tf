@@ -2,13 +2,13 @@
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "oci_logging_log_group" "logging_log_group" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   display_name = format("%s-log-group", var.proj_abrv)
 }
 
 resource "oci_logging_log" "lb_error_log" {
   configuration {
-    compartment_id = var.compartment_ocid
+    compartment_id = local.compartment_ocid
     source {
       category    = "error"
       resource    = oci_load_balancer.lb.id
@@ -27,7 +27,7 @@ resource "oci_logging_log" "lb_error_log" {
 
 resource "oci_logging_log" "lb_access_log" {
   configuration {
-    compartment_id = var.compartment_ocid
+    compartment_id = local.compartment_ocid
     source {
       category    = "access"
       resource    = oci_load_balancer.lb.id
