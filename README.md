@@ -4,8 +4,8 @@
 Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 
 ## Release Info
-TAG: 1.0.0 - Uses mTLS for connecting ORDS to the ADB; Terraform Provisioner and Bastion Services to stage ADB wallet and ORDS Config
-MAIN: Uses TLS for connecting ORDS to the ADB, eliminating the wallet and Bastion; cloud-init replaces Provisioner to configure ORDS
+* **TAG: 1.0.0** - Uses mTLS for connecting ORDS to the ADB; Terraform Provisioner and Bastion Services to stage ADB wallet and ORDS Config
+* **MAIN:** Uses TLS for connecting ORDS to the ADB, eliminating the wallet and Bastion; cloud-init replaces Provisioner to configure ORDS
 
 **UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  This new feature is not applicable to Always Free resources as explained in the [FAQS](FAQS.md).  For Paid Tenancies, an IaC taking advantage of this new feature can be found here:[oci-arch-apex-vanity](https://github.com/gotsysdba/oci-arch-apex-vanity)
 
@@ -25,10 +25,11 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 | **ADB Storage (TB)**         | 1     | 1     | 1    | 1    |
 | **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  |
 | **Load Balancer (Mbps Max)** | 10    | 480   | 1250 | 1250 |
-| **High Availability**        | FALSE | FALSE | TRUE | TRUE |
+| **High Availabity**          | FALSE | FALSE | TRUE | TRUE |
 | **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE |
 | **Dataguard**                | FALSE | FALSE | TRUE | TRUE |
 
+<mark>Always Free Notice:</mark> This architecture for Always Free utilises most of the Always Free resources; it is expected that your tenancy does not have anything provisioned otherwise deployment will fail with limit issues.
 
 ### L Architecture Diagram
 ![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.drawio.png "L APEX/ORDS Architecture")
@@ -76,7 +77,7 @@ You'll need to update three fields with values you can find in the [OCI console]
 
 * TF_VAR_compartment_ocid
 * TF_VAR_tenancy_ocid
-* TF_VAR_user_ocid
+* TF_VAR_current_user_ocid
 
 To change the default ALF (Always Free) sizing, manaully set TF_VAR_size to either S, M, or L; for example:
 
@@ -97,7 +98,7 @@ TF_VAR_compartment_ocid=ocid1.compartment....e7e5q
 TF_VAR_region=us-ashburn-1
 TF_VAR_fingerprint=50:d0:7d:f7:0e:05:cd:87:3b:2a:cb:50:b1:17:90:e9
 TF_VAR_api_private_key_path=~/.oci/oci_api_key.pem
-TF_VAR_user_ocid=ocid1.user....ewc5a
+TF_VAR_current_user_ocid=ocid1.user....ewc5a
 ```
 
 It is recommended to utilise [Terraform Workspaces](https://www.terraform.io/docs/language/state/workspaces.html) for each sized deployment due to tfstate files.

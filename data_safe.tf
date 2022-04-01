@@ -5,7 +5,7 @@
 ## Paid Resources
 #####################################################################
 resource "oci_data_safe_data_safe_private_endpoint" "data_safe_private_endpoint" {
-  count          = local.is_always_free ? 0 : 1
+  count          = local.is_paid && var.prov_data_safe ? 1 : 0
   compartment_id = local.compartment_ocid
   display_name   = format("%s-data-safe-private-endpoint", var.proj_abrv)
   subnet_id      = oci_core_subnet.subnet_private[0].id
@@ -14,7 +14,7 @@ resource "oci_data_safe_data_safe_private_endpoint" "data_safe_private_endpoint"
 }
 
 resource "oci_data_safe_target_database" "data_safe_target_database" {
-  count          = local.is_always_free ? 0 : 1
+  count          = local.is_paid && var.prov_data_safe ? 1 : 0
   compartment_id = local.compartment_ocid
   display_name   = format("%s-data-safe-target-database", var.proj_abrv)
   database_details {

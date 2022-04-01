@@ -24,9 +24,9 @@ resource "oci_core_instance" "instance" {
     for_each = local.is_flexible_shape ? [1] : []
     content {
       baseline_ocpu_utilization = "BASELINE_1_2"
-      ocpus                     = var.compute_flex_shape_ocpus[var.size]
+      ocpus                     = var.compute_flex_shape_ocpus[local.sizing]
       // Memory OCPU * 16GB
-      memory_in_gbs             = var.compute_flex_shape_ocpus[var.size] * 16
+      memory_in_gbs             = var.compute_flex_shape_ocpus[local.sizing] * 16
     }
   }
   source_details {
@@ -34,8 +34,8 @@ resource "oci_core_instance" "instance" {
     source_id   = data.oci_core_images.images.images[0].id
   }
   create_vnic_details {
-    subnet_id        = local.is_always_free ? oci_core_subnet.subnet_public.id: oci_core_subnet.subnet_private[0].id
-    assign_public_ip = local.is_always_free
+    subnet_id        = local.is_paid ? oci_core_subnet.subnet_private[0].id : oci_core_subnet.subnet_public.id
+    assign_public_ip = local.is_paid ? true : false
     nsg_ids          = [oci_core_network_security_group.security_group_ssh.id, oci_core_network_security_group.security_group_ords.id]
   }
   metadata = {
@@ -45,6 +45,7 @@ resource "oci_core_instance" "instance" {
   lifecycle {
     ignore_changes = all
   }
+  depends_on = [ oci_database_autonomous_database.autonomous_database ]
 }
 
 #####################################################################
@@ -53,13 +54,13 @@ resource "oci_core_instance" "instance" {
 #####################################################################
 // Create an ORDS image from the core after ORDS is configured
 resource "oci_core_image" "ords_instance_image" {
-  count          = local.is_always_free ? 0 : 1
+  count          = local.is_paid ? 1 : 0
   compartment_id = local.compartment_ocid
   instance_id    = oci_core_instance.instance.id
 }
 
 resource "oci_core_instance_configuration" "instance_configuration" {
-  count          = local.is_always_free ? 0 : 1
+  count          = local.is_paid ? 1 : 0
   compartment_id = local.compartment_ocid
   display_name   = format("%s-instance-configuration", var.proj_abrv)
   instance_details { 
@@ -71,8 +72,8 @@ resource "oci_core_instance_configuration" "instance_configuration" {
         for_each = local.is_flexible_shape ? [1] : []
         content {
           baseline_ocpu_utilization = "BASELINE_1_2"
-          ocpus                     = var.compute_flex_shape_ocpus[var.size]
-          memory_in_gbs             = var.compute_flex_shape_ocpus[var.size] * 16
+          ocpus                     = var.compute_flex_shape_ocpus[local.sizing]
+          memory_in_gbs             = var.compute_flex_shape_ocpus[local.sizing] * 16
         }
       }
       source_details {
@@ -89,7 +90,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 }
 
 resource "oci_core_instance_pool" "instance_pool" {
-  count                     = local.is_always_free ? 0 : 1
+  count                     = local.is_paid ? 1 : 0
   compartment_id            = local.compartment_ocid
   instance_configuration_id = oci_core_instance_configuration.instance_configuration[0].id  
 	dynamic "placement_configurations" {
@@ -117,7 +118,7 @@ resource "oci_core_instance_pool" "instance_pool" {
 
 // Add the "core" instance into the pool
 resource "oci_core_instance_pool_instance" "instance_pool_instance" {
-  count            = local.is_always_free ? 0 : 1
+  count            = local.is_paid ? 1 : 0
   instance_id      = oci_core_instance.instance.id
   instance_pool_id = oci_core_instance_pool.instance_pool[0].id
 }

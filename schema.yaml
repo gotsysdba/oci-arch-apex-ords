@@ -1,7 +1,5 @@
 # Copyright (c) 2020, 2021 Oracle and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
-# 
-
 title: "OCI APEX Implemenation using Customer Managed ORDS"
 description: "Highly Available/Scalable architecuture running APEX in OCI with Customer Managed ORDS"
 informationalText: "This IaC supports 5 different size configurations: ALF (Always Free), S, M, L, XL with variations to the general architecture."
@@ -13,22 +11,31 @@ source:
 
 locale: "en"
 variableGroups:
-  - title: "Basic Hidden"
-    variables:
-    - tenancy_ocid
-    - compartment_ocid
-    - region
-    visible: false
-
   - title: "General Configuration"
     variables:
-    - proj_abrv
-    - size
-    - adb_license_model
+      - proj_abrv
+      - always_free
+      - size
+      - adb_license_model
+    visible: true
+ 
+  - title: "Additional Components"
+    variables:
+      - use_object_storage
+      - use_data_safe
+      - use_oic
+    visible: true
+
+  - title: "Basic Hidden"
+    variables:
+      - tenancy_ocid
+      - compartment_ocid
+      - region
+      - current_user_ocid
+    visible: false
 
   - title: "Extras Hidden"
     variables:
-      - user_ocid
       - fingerprint
       - private_key_path
     visible: false
@@ -55,7 +62,7 @@ variableGroups:
   - title: "Locals Hidden"
     variables:
       - compute_flexible_shapes
-      - is_always_free
+      - is_paid
       - adb_private_endpoint
       - compute_shape
       - is_flexible_shape
@@ -73,16 +80,23 @@ variables:
     title: "Resource Name Prefix"
     required: true
 
+  always_free:
+    type: boolean
+    title: "Always Free Resources"
+    default: false
+
   size:
     type: enum
     title: "Architecture Size"
     default: "ALF"
     enum:
-      - ALF
       - S
       - M
       - L
     required: true
+    visible: 
+      not:
+        - always_free
 
   adb_license_model:
     type: enum
@@ -92,3 +106,39 @@ variables:
       - BRING_YOUR_OWN_LICENSE
       - LICENSE_INCLUDED
     required: true
+    visible: 
+      not:
+        - always_free
+
+  prov_object_storage:
+    type: boolean
+    title: "Provision Object Storage"
+    default: false
+
+  enable_lb_logging:
+    type: boolean
+    title: "Enable Load Balancer Logging"
+    default: false
+
+  prov_data_safe:
+    type: boolean
+    title: "Provision Data Safe"
+    default: false
+    visible: 
+      not:
+        - always_free
+
+  prov_oic:
+    type: boolean
+    title: "Provision Oracle Integration Cloud"
+    default: false
+    visible: 
+      not:
+        - always_free
+
+outputs:
+  lb_address:
+    title: "Load Balancer Public IP"
+    displayText: ${Messages.solutionsHub.solutions.ociDevTools.outputs.lb_address.displayText()}
+    type: copyableString
+    visible: true

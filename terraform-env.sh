@@ -9,6 +9,8 @@ else
 	export TF_VAR_tenancy_ocid="<TENANCY OCID>"
 	export TF_VAR_compartment_ocid="<COMPARTMENT OCID>"
 	export TF_VAR_user_ocid="<USER OCID>"
+	# current_user_ocid for Resource Manager
+	export TF_VAR_current_user_ocid=${TF_VAR_user_ocid}
 	export TF_VAR_fingerprint="<FINGERPRINT>"
 	export TF_VAR_private_key_path="<PATH TO OCI PRIVATE KEY>"
 

@@ -7,8 +7,8 @@ resource "oci_load_balancer" "lb" {
   shape          = "flexible"
   is_private     = false
   shape_details {
-      minimum_bandwidth_in_mbps = var.flex_lb_min_shape[var.size]
-      maximum_bandwidth_in_mbps = var.flex_lb_max_shape[var.size]
+      minimum_bandwidth_in_mbps = var.flex_lb_min_shape[local.sizing]
+      maximum_bandwidth_in_mbps = var.flex_lb_max_shape[local.sizing]
   }
   subnet_ids = [
     oci_core_subnet.subnet_public.id

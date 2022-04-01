@@ -5,7 +5,7 @@
 ## Paid Resource
 #####################################################################
 resource "oci_integration_integration_instance" "integration_instance" {
-  count                     = local.is_always_free ? 0 : var.enable_integration_service
+  count                     = local.is_paid && var.prov_oic ? 1 : 0
   compartment_id            = local.compartment_ocid
   display_name              = format("%s-auto-integration_instance", var.proj_abrv)
   consumption_model         = "UCM"

@@ -11,9 +11,9 @@
 **A:** Yes and Maybe.  For Always Free (ALF), this architecture is still the only way to get TLS enabled vanity URLs.  For Paid tenancies, this architecture allows for _transparent_ distribution of load between the Compute Instances and the ADB while adding a layer of customer managed fault tolerance.  While fault tolerance is expected, it is unclear, at this time, how much load can be catered for. 
 
 ---
-**Q: Why does Always Free require the OCI CLI to be installed
+**Q: Why does Always Free require the OCI CLI to be installed**
 
-**A:** To avoid uploading the ADB Wallet to the ORDS Compute Instance, TLS has been chosen, over mTLS, to connect to the database.  However, in order to use TLS, the ADB must whitelist the IP or VCN of the ORDS server and this is where the requirement stems.  In Always Free, the ADB will not have a private end-point, meaning the ORDS compute must connect to it via the public network and so its pubic IP must be whitelisted for TLS.  Circular logic is introduced with this requirement; the ORDS compute needs the ADB provisioned to configure connectivity and the ADB needs the ORDS compute to be provisioned to whitelist its IP.  The OCI CLI is used to update the ADB's whitelist with the ORDS compute _after_ both are provisioned.  The retry logic of SQLcl on the ORDS compute prevents failure until the ADB's whitelist is updated.
+**A:** To avoid uploading the ADB Wallet to the ORDS Compute Instance, TLS has been chosen, over mTLS, to connect to the database.  However, in order to use TLS, the ADB must whitelist the IP or VCN of the ORDS server and this is where the requirement stems.  In Always Free, the ADB will not have a private end-point, meaning the ORDS compute must connect to it via the public network and so its pubic IP must be whitelisted for TLS.  Circular logic is introduced with this requirement; the ORDS compute needs the ADB provisioned to configure connectivity and the ADB needs the ORDS compute to be provisioned to whitelist its IP.  The OCI CLI is used to update the ADB's whitelist with the ORDS compute _after_ both are provisioned.
 
 ---
 **Q: How do I setup "Vanity URLs"**

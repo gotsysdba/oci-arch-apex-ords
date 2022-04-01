@@ -88,14 +88,14 @@ resource "oci_core_subnet" "subnet_public" {
 ## Paid Resources
 #####################################################################
 resource "oci_core_nat_gateway" "nat_gateway" {
-  count          = local.is_always_free ? 0 : 1
+  count          = local.is_paid ? 1 : 0
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-nat-gateway", var.proj_abrv)
 }
 
 resource "oci_core_route_table" "route_table_nat_gw" {
-  count          = local.is_always_free ? 0 : 1
+  count          = local.is_paid ? 1 : 0
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-route-table-nat-gw", var.proj_abrv)
@@ -107,7 +107,7 @@ resource "oci_core_route_table" "route_table_nat_gw" {
 }
 
 resource "oci_core_subnet" "subnet_private" {
-  count                      = local.is_always_free ? 0 : 1
+  count                      = local.is_paid ? 1 : 0
   compartment_id             = local.compartment_ocid
   vcn_id                     = oci_core_vcn.vcn.id
   display_name               = format("%s-subnet-private", var.proj_abrv)

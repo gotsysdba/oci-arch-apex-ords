@@ -6,6 +6,7 @@ data "oci_objectstorage_namespace" "ns" {
 }
 
 resource "oci_objectstorage_bucket" "bucket" {
+  count          = var.prov_object_storage ? 1 : 0
   compartment_id = local.compartment_ocid
   namespace      = data.oci_objectstorage_namespace.ns.namespace
   name           = format("%s-bucket", var.proj_abrv)
