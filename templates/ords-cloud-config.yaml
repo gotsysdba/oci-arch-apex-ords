@@ -1,0 +1,154 @@
+#cloud-config
+output: {all: '| tee -a /var/log/cloud-init-ords.log'}
+package_upgrade: false
+packages:
+  - yum-cron 
+  - ords 
+  - sqlcl
+write_files:
+- path: /opt/oracle/ords/conf/ords/conf/apex_pu.xml
+  permissions: '0644'
+  content: |
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+    <properties>
+    <entry key="db.connectionType">customurl</entry>
+    <entry key="db.customURL">jdbc:oracle:thin:@${db_conn}</entry>
+    <entry key="db.username">ORDS_PUBLIC_USER_OCI</entry>
+    <entry key="db.password">!${db_password}</entry>
+    </properties>
+  append: false
+  defer: true
+- path: /opt/oracle/ords/conf/ords/defaults.xml
+  permissions: '0644'
+  content: |
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+    <properties>
+    <entry key="plsql.gateway.enabled">true</entry>
+    <entry key="jdbc.InitialLimit">10</entry>
+    <entry key="jdbc.MaxLimit">100</entry>
+    <entry key="security.httpsHeaderCheck">X-Forwarded-Proto: https</entry>
+    <entry key="feature.sdw">true</entry>
+    <entry key="restEnabledSql.active">true</entry>
+    <entry key="database.api.enabled">true</entry>
+    <entry key="jdbc.auth.enabled">true</entry>
+    <entry key="cache.caching">false</entry>
+    <entry key="cache.directory">/tmp/apex/cache</entry>
+    <entry key="cache.duration">days</entry>
+    <entry key="cache.expiration">7</entry>
+    <entry key="cache.maxEntries">500</entry>
+    <entry key="cache.monitorInterval">60</entry>
+    <entry key="cache.procedureNameList"/>
+    <entry key="cache.type">lru</entry>
+    <entry key="debug.debugger">false</entry>
+    <entry key="debug.printDebugToScreen">false</entry>
+    <entry key="error.keepErrorMessages">true</entry>
+    <entry key="error.maxEntries">50</entry>
+    <entry key="jdbc.DriverType">thin</entry>
+    <entry key="jdbc.InactivityTimeout">1800</entry>
+    <entry key="jdbc.MaxConnectionReuseCount">1000</entry>
+    <entry key="jdbc.MaxStatementsLimit">10</entry>
+    <entry key="jdbc.MinLimit">1</entry>
+    <entry key="jdbc.statementTimeout">900</entry>
+    <entry key="log.logging">false</entry>
+    <entry key="log.maxEntries">50</entry>
+    <entry key="misc.compress"/>
+    <entry key="misc.defaultPage">apex</entry>
+    <entry key="security.disableDefaultExclusionList">false</entry>
+    <entry key="security.maxEntries">2000</entry>
+    </properties>
+  append: false
+  defer: true
+- path: /opt/oracle/ords/conf/ords/standalone/standalone.properties
+  permissions: '0644'
+  content: |
+    jetty.port=8080
+    standalone.context.path=/ords
+    standalone.doc.root=/opt/oracle/ords/conf/ords/standalone/doc_root
+    standalone.scheme.do.not.prompt=true
+    standalone.static.context.path=/i
+  append: false
+  defer: true
+- path: /opt/oracle/ords/ords.conf
+  permissions: '0755'
+  content: |
+    ORDS_CONFIGDIR=/opt/oracle/ords/conf
+    JAVA_HOME=/usr/java/latest
+    JAVA_OPTIONS=-Xmx2048m
+    ORDS_BASE_PATH=/opt/oracle
+  append: false
+  defer: true
+- path: /opt/oracle/ords/setup.sql
+  permissions: '0755'
+  content: |
+    set serveroutput on size 99999 feedback off timing on linesize 180 echo on
+    whenever sqlerror continue
+    DECLARE
+      L_USER	VARCHAR2(255);
+    BEGIN
+      BEGIN
+        SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PUBLIC_USER_OCI';
+      EXCEPTION WHEN NO_DATA_FOUND THEN
+        execute immediate 'CREATE USER "ORDS_PUBLIC_USER_OCI" IDENTIFIED BY "&1"';
+      END;
+      BEGIN
+        SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PLSQL_GATEWAY_OCI';
+      EXCEPTION WHEN NO_DATA_FOUND THEN
+        execute immediate 'CREATE USER "ORDS_PLSQL_GATEWAY_OCI" IDENTIFIED BY "&1"';
+      END;
+    END;    
+    /
+    GRANT CONNECT TO ORDS_PUBLIC_USER_OCI;
+    ALTER USER ORDS_PUBLIC_USER_OCI PROFILE ORA_APP_PROFILE;
+    GRANT CONNECT TO ORDS_PLSQL_GATEWAY_OCI;
+    ALTER USER ORDS_PLSQL_GATEWAY_OCI PROFILE ORA_APP_PROFILE;
+    ALTER USER ORDS_PLSQL_GATEWAY_OCI GRANT CONNECT THROUGH ORDS_PUBLIC_USER_OCI;
+    BEGIN
+      ORDS_ADMIN.PROVISION_RUNTIME_ROLE (
+        p_user => 'ORDS_PUBLIC_USER_OCI',
+        p_proxy_enabled_schemas => TRUE
+      );
+    END;
+    /
+    BEGIN
+      ORDS_ADMIN.CONFIG_PLSQL_GATEWAY (
+        p_runtime_user => 'ORDS_PUBLIC_USER_OCI',
+        p_plsql_gateway_user => 'ORDS_PLSQL_GATEWAY_OCI'
+      );
+    END;
+    /
+    DECLARE
+      L_CDN  VARCHAR2(255);
+    BEGIN
+      SELECT images_version INTO L_CDN 
+        FROM APEX_PATCHES
+       where is_bundle_patch = 'Yes'
+       order by patch_version desc
+       fetch first 1 rows only;
+      apex_instance_admin.set_parameter(
+          p_parameter => 'IMAGE_PREFIX',
+          p_value     => 'https://static.oracle.com/cdn/apex/'||L_CDN||'/' 
+      );      
+      commit;
+    END;
+    /
+    BEGIN
+        apex_instance_admin.set_parameter('RESTRICT_DEV_HEADER', 'APEX-Public-Access');
+        commit;
+    END;
+    /
+    QUIT
+  append: false
+  defer: true
+runcmd:
+ - systemctl stop ords.service
+ - sql admin/${db_password}@'${db_conn}' @/opt/oracle/ords/setup.sql ${db_password}
+ - systemctl stop firewalld.service
+ - firewall-offline-cmd --zone=public --add-port 8080/tcp
+ - systemctl start firewalld.service
+ - chown -R oracle:oinstall /opt/oracle/ords/conf
+ - /bin/cp -f /opt/oracle/ords/ords.conf /etc/ords/ords.conf
+ - java -jar -Xmx1024M /opt/oracle/ords/ords.war configdir /opt/oracle/ords/conf
+ - systemctl start ords.service
+ - systemctl enable ords.service

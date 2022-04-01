@@ -5,8 +5,8 @@
 ## Depends on Paid Resource
 #####################################################################
 resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
-  count          = local.is_always_free ? 0 : 1
-  compartment_id = var.compartment_ocid
+  count          = local.is_paid ? 1 : 0
+  compartment_id = local.compartment_ocid
   display_name   = format("%s-auto-scaling-configuration", var.proj_abrv)
   auto_scaling_resources {
     id   = oci_core_instance_pool.instance_pool[0].id
@@ -15,9 +15,9 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
   policies {
     display_name = format("%s-auto-scaling-policy", var.proj_abrv)
     capacity {
-      initial = var.compute_instances[var.size]
-      min     = var.compute_instances[var.size]
-      max     = var.compute_instances[var.size] * 3
+      initial = var.compute_instances[local.sizing]
+      min     = var.compute_instances[local.sizing]
+      max     = var.compute_instances[local.sizing] * 3
     }
     policy_type = "threshold"
     rules {

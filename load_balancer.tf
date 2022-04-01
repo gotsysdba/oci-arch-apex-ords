@@ -2,13 +2,13 @@
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "oci_load_balancer" "lb" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   display_name   = format("%s-lb", var.proj_abrv)
   shape          = "flexible"
   is_private     = false
   shape_details {
-      minimum_bandwidth_in_mbps = var.flex_lb_min_shape[var.size]
-      maximum_bandwidth_in_mbps = var.flex_lb_max_shape[var.size]
+      minimum_bandwidth_in_mbps = var.flex_lb_min_shape[local.sizing]
+      maximum_bandwidth_in_mbps = var.flex_lb_max_shape[local.sizing]
   }
   subnet_ids = [
     oci_core_subnet.subnet_public.id
@@ -24,7 +24,7 @@ resource "oci_load_balancer_backend_set" "lb_backend_set" {
     cookie_name = "*"
   }
   health_checker {
-    interval_ms         = "30000"
+    interval_ms         = "10000"
     port                = "8080"
     protocol            = "HTTP"
     response_body_regex = ""
@@ -81,4 +81,119 @@ resource "oci_load_balancer_certificate" "lb_certificate" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "oci_load_balancer_rule_set" "lb_rule_set" {
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/sql-developer"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/sign-in/"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/signed-out/"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/sign-in/session"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/_/sql"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/ords/_/db-api/"
+      operator        = "PREFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "REDIRECT"
+    conditions {
+      attribute_name  = "PATH"
+      attribute_value = "/_/public-properties/"
+      operator        = "SUFFIX_MATCH"
+    }
+    redirect_uri {
+      host = "apex.oracle.com"
+      path = "/"
+      protocol = "https"
+      query    = ""
+    }
+    response_code = "301"
+  }
+  items {
+    action = "ADD_HTTP_REQUEST_HEADER"
+    header = "APEX-Public-Access"
+    value = "1"
+  }
+  load_balancer_id = oci_load_balancer.lb.id
+  name             = "APEX_Public_Access"
 }

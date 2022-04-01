@@ -3,11 +3,13 @@
 
 // Basic Hidden
 variable "tenancy_ocid" {}
-variable "compartment_ocid" {}
+variable "compartment_ocid" {
+  default = ""
+}
 variable "region" {}
 
 // Extra Hidden
-variable "user_ocid" {
+variable "current_user_ocid" {
   default = ""
 }
 variable "fingerprint" {
@@ -26,6 +28,34 @@ variable "size" {
 }
 variable "adb_license_model" {
   default = "BRING_YOUR_OWN_LICENSE"
+}
+
+// Additional Resources
+variable "prov_object_storage" {
+  description = "Provision Object Storage Bucket"
+  default = "false"
+}
+
+variable "prov_data_safe" {
+  description = "Provision Data Safe"
+  default = "false"
+}
+
+variable "prov_oic" {
+  description = "Provision Oracle Integration Cloud"
+  default = "false"
+}
+
+variable "enable_lb_logging" {
+  description = "Enable Load Balancer Logging"
+  default = "false"
+}
+
+//The sizing is catering for schema.yaml visibility
+//Default is ALF (size) though this boolean is false
+//Check the locals at bottom for logic
+variable "always_free" {
+  default = "false"
 }
 
 variable "adb_cpu_core_count" {
@@ -95,7 +125,13 @@ variable "adb_storage_size_in_tbs" {
 }
 
 variable "adb_db_version" {
-  default = "19c"
+  type = map
+  default = {
+    "L"   = "19c"
+    "M"   = "19c"
+    "S"   = "19c"
+    "ALF" = "21c"
+  }
 }
 
 variable "compute_os" {
@@ -116,7 +152,7 @@ variable "vcn_cidr" {
 }
 
 variable "vcn_is_ipv6enabled" {
-  default = false
+  default = true
 }
 
 variable "public_subnet_cidr" {
@@ -139,8 +175,10 @@ locals {
 
 # Dynamic Vars
 locals {
-  is_always_free       = var.size != "ALF" ? false : true
-  adb_private_endpoint = var.size != "ALF" ? true  : false
-  compute_shape        = var.size != "ALF" ? "VM.Standard.E3.Flex" : "VM.Standard.E2.1.Micro"
+  sizing               = var.always_free ? "ALF" : var.size
+  is_paid              = local.sizing != "ALF" ? true : false
+  adb_private_endpoint = local.sizing != "ALF" ? true  : false
+  compute_shape        = local.sizing != "ALF" ? "VM.Standard.E3.Flex" : "VM.Standard.E2.1.Micro"
   is_flexible_shape    = contains(local.compute_flexible_shapes, local.compute_shape)
+  compartment_ocid     = var.compartment_ocid != "" ? var.compartment_ocid : var.tenancy_ocid
 }

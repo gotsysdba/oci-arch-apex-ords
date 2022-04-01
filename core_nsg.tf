@@ -6,7 +6,7 @@
 #####################################################################
 // Security Group for SSH
 resource "oci_core_network_security_group" "security_group_ssh" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-ssh", var.proj_abrv)
 }
@@ -35,7 +35,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_ssh_ing
 
 // Security Group for Load Balancer (lb)
 resource "oci_core_network_security_group" "security_group_lb" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-lb", var.proj_abrv)
 }
@@ -77,7 +77,7 @@ resource  "oci_core_network_security_group_security_rule" "security_group_lb_inr
 
 // Security Group for ORDS
 resource "oci_core_network_security_group" "security_group_ords" {
-  compartment_id = var.compartment_ocid
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-ords", var.proj_abrv)
 }
@@ -115,14 +115,14 @@ resource "oci_core_network_security_group_security_rule" "security_group_ords_in
 ## Paid Resources
 #####################################################################
 resource "oci_core_network_security_group" "security_group_adb" {
-  count          = local.is_always_free ? 0 : 1
-  compartment_id = var.compartment_ocid
+  count          = local.is_paid ? 1 : 0
+  compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-adb", var.proj_abrv)
 }
 // Security Group for ADB - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_adb_egress" {
-  count                     = local.is_always_free ? 0 : 1
+  count                     = local.is_paid ? 1 : 0
   network_security_group_id = oci_core_network_security_group.security_group_adb[0].id
   direction                 = "EGRESS"
   protocol                  = "6"
@@ -131,7 +131,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_adb_egr
 }
 // Security Group for ADB - INGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_adb_ingress_TCP1522" {
-  count                     = local.is_always_free ? 0 : 1
+  count                     = local.is_paid ? 1 : 0
   network_security_group_id = oci_core_network_security_group.security_group_adb[0].id
   direction                 = "INGRESS"
   protocol                  = "6"
@@ -140,7 +140,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_adb_ing
   tcp_options {
     destination_port_range {
       max = 1522
-      min = 1522
+      min = 1521
     }
   }
 }

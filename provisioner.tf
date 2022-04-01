@@ -1,67 +1,25 @@
 # Copyright © 2020, Oracle and/or its affiliates. 
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-// While cloud-init could be used to install software, still need to send up wallet
-// so instead of complicating with different ways to bootstrap the ORDS, using provisioners :()
 locals {
-  db_name  = lookup(oci_database_autonomous_database.autonomous_database,"db_name")
-  password = random_password.autonomous_database_password.result
-  apex_ver = lookup(oci_database_autonomous_database.autonomous_database.apex_details[0],"apex_version")
+  adb_ocid = oci_database_autonomous_database.autonomous_database.id
+  ci_pubip = oci_core_instance.instance.public_ip
 }
 
-data "oci_core_vnic_attachments" "instance_vnic_attach" {
-  availability_domain = local.availability_domain
-  compartment_id      = var.compartment_ocid
-  instance_id         = oci_core_instance.instance.id
-}
-
-data "oci_core_vnic" "instance_vnic" {
-  vnic_id = data.oci_core_vnic_attachments.instance_vnic_attach.vnic_attachments.0.vnic_id
-}
-
-resource "null_resource" "ords_config" {
-  depends_on = [oci_core_instance.instance, oci_database_autonomous_database.autonomous_database]
-  // Cause the provisioners to run on every apply
+// Avoid Circular Logic for ALF only; requires OCI CLI to update the Whitelist of the ADB post prov'ing of Compute
+resource "null_resource" "oci_whitelist" {
+  count = local.is_paid ? 0 : 1
   triggers = {
-    always_run = timestamp()
+    ci_public_ip = oci_core_instance.instance.public_ip
   }
-  provisioner "file" {
-    connection {
-      type                = "ssh"
-      user                = var.bastion_user
-      host                = data.oci_core_vnic.instance_vnic.private_ip_address
-      private_key         = tls_private_key.example_com.private_key_pem
-
-      agent               = false
-      timeout             = "10m"
-      bastion_host        = "host.bastion.${var.region}.oci.oraclecloud.com"
-      bastion_port        = "22"
-      bastion_user        = oci_bastion_session.bastion_service_ssh.id
-      bastion_private_key = tls_private_key.example_com.private_key_pem
-    }
-    source      = "uploads"
-    destination = "/tmp"
-  }
-
-  provisioner "remote-exec" {
-    connection {
-      type                = "ssh"
-      user                = var.bastion_user
-      host                = data.oci_core_vnic.instance_vnic.private_ip_address
-      private_key         = tls_private_key.example_com.private_key_pem
-
-      agent               = false
-      timeout             = "10m"
-      bastion_host        = "host.bastion.${var.region}.oci.oraclecloud.com"
-      bastion_port        = "22"
-      bastion_user        = oci_bastion_session.bastion_service_ssh.id
-      bastion_private_key = tls_private_key.example_com.private_key_pem
-    }
-    inline = [
-      "sudo chmod +x /tmp/uploads/config_*.ksh",
-      "sudo -u root /tmp/uploads/config_root.ksh -s PRE",
-      "sudo -u oracle /tmp/uploads/config_oracle.ksh -t ${local.db_name} -p \"${local.password}\" -v ${local.apex_ver}",
-      "sudo -u root /tmp/uploads/config_root.ksh -s POST",
-    ]
+  provisioner "local-exec" {    
+    command = "oci db autonomous-database update --autonomous-database-id ${local.adb_ocid} --whitelisted-ips '[\"${local.ci_pubip}\"]' --force"
+    environment = {
+      OCI_CLI_USER         = var.current_user_ocid
+      OCI_CLI_REGION       = var.region
+      OCI_CLI_TENANCY      = var.tenancy_ocid
+      OCI_CLI_FINGERPRINT  = var.fingerprint != "" ? var.fingerprint : null
+      OCI_CLI_KEY_FILE     = var.private_key_path != "" ? var.private_key_path : null
+    }  
   }
 }
