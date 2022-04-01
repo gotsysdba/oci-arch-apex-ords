@@ -24,7 +24,7 @@ resource "oci_load_balancer_backend_set" "lb_backend_set" {
     cookie_name = "*"
   }
   health_checker {
-    interval_ms         = "30000"
+    interval_ms         = "10000"
     port                = "8080"
     protocol            = "HTTP"
     response_body_regex = ""

@@ -142,11 +142,11 @@ write_files:
   append: false
   defer: true
 runcmd:
+ - systemctl stop ords.service
+ - sql admin/${db_password}@'${db_conn}' @/opt/oracle/ords/setup.sql ${db_password}
  - systemctl stop firewalld.service
  - firewall-offline-cmd --zone=public --add-port 8080/tcp
  - systemctl start firewalld.service
- - systemctl stop ords.service
- - sql admin/${db_password}@'${db_conn}' @/opt/oracle/ords/setup.sql ${db_password}
  - chown -R oracle:oinstall /opt/oracle/ords/conf
  - /bin/cp -f /opt/oracle/ords/ords.conf /etc/ords/ords.conf
  - java -jar -Xmx1024M /opt/oracle/ords/ords.war configdir /opt/oracle/ords/conf

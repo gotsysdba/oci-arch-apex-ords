@@ -35,7 +35,7 @@ resource "oci_core_instance" "instance" {
   }
   create_vnic_details {
     subnet_id        = local.is_paid ? oci_core_subnet.subnet_private[0].id : oci_core_subnet.subnet_public.id
-    assign_public_ip = local.is_paid ? true : false
+    assign_public_ip = local.is_paid ? false : true
     nsg_ids          = [oci_core_network_security_group.security_group_ssh.id, oci_core_network_security_group.security_group_ords.id]
   }
   metadata = {
@@ -45,7 +45,6 @@ resource "oci_core_instance" "instance" {
   lifecycle {
     ignore_changes = all
   }
-  depends_on = [ oci_database_autonomous_database.autonomous_database ]
 }
 
 #####################################################################
