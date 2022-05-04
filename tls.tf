@@ -6,7 +6,6 @@ resource "tls_private_key" "acme_ca" {
 }
 
 resource "tls_self_signed_cert" "acme_ca" {
-  key_algorithm     = "RSA"
   private_key_pem   = tls_private_key.acme_ca.private_key_pem
   is_ca_certificate = true
 
@@ -31,7 +30,6 @@ resource "tls_private_key" "example_com" {
 }
 
 resource "tls_cert_request" "example_com" {
-  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.example_com.private_key_pem
 
   dns_names = ["example.com"]
@@ -46,7 +44,6 @@ resource "tls_cert_request" "example_com" {
 
 resource "tls_locally_signed_cert" "example_com" {
   cert_request_pem   = tls_cert_request.example_com.cert_request_pem
-  ca_key_algorithm   = "RSA"
   ca_private_key_pem = tls_private_key.acme_ca.private_key_pem
   ca_cert_pem        = tls_self_signed_cert.acme_ca.cert_pem
 
