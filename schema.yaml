@@ -50,7 +50,7 @@ variableGroups:
       - compute_flex_shape_ocpus
       - adb_storage_size_in_tbs
       - adb_db_version
-      - compute_os
+      - compute_image
       - linux_os_version
       - bastion_user
       - vcn_cidr
