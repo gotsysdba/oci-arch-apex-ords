@@ -38,3 +38,7 @@
 * Administration Services: https://yourDomain/ords/apex_admin
 * Workspace Login:         https://yourDomain/ords/f?p=4550
 
+---
+**Q: What are the settings for ORDS**
+
+**A:** https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/22.1/ordig/about-REST-configuration-files.html#GUID-006F916B-8594-4A78-B500-BB85F35C12A0

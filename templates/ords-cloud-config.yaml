@@ -10,7 +10,7 @@ write_files:
 - path: /etc/ords.conf.custom
   permissions: '0644'
   content: |
-    APP_VM_OPTS=-Xmx2048m
+    APP_VM_OPTS=-Xms512m -Xmx1024m
     ORDS_BASE=/opt/oracle/ords
     ORDS_CONFIG=/etc/ords/config
   append: false
@@ -34,17 +34,14 @@ write_files:
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
     <properties>
-    <comment>Saved on Wed May 04 03:31:45 UTC 2022</comment>
-    <entry key="database.api.enabled">true</entry>
-    <entry key="feature.sdw">true</entry>
+    <comment>Default created by IaC</comment>
+    <entry key="database.api.enabled">false</entry>
+    <entry key="feature.sdw">false</entry>
     <entry key="jdbc.InitialLimit">10</entry>
     <entry key="jdbc.MaxLimit">100</entry>
-    <entry key="jdbc.auth.enabled">true</entry>
-    <entry key="plsql.gateway.enabled">true</entry>
-    <entry key="restEnabledSql.active">true</entry>
+    <entry key="restEnabledSql.active">false</entry>
     <entry key="security.httpsHeaderCheck">X-Forwarded-Proto: https</entry>
     <entry key="standalone.context.path">/ords</entry>
-    <entry key="standalone.doc.root">/opt/oracle/ords/conf/ords/standalone/doc_root</entry>
     <entry key="standalone.http.port">8080</entry>
     <entry key="standalone.static.context.path">/i</entry>
     </properties>
