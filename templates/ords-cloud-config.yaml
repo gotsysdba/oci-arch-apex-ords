@@ -5,8 +5,17 @@ packages:
   - yum-cron 
   - ords 
   - sqlcl
+  - jre-12
 write_files:
-- path: /opt/oracle/ords/conf/ords/conf/apex_pu.xml
+- path: /etc/ords.conf.custom
+  permissions: '0644'
+  content: |
+    APP_VM_OPTS=-Xms512m -Xmx1024m
+    ORDS_BASE=/opt/oracle/ords
+    ORDS_CONFIG=/etc/ords/config
+  append: false
+  defer: true
+- path: /etc/ords/config/databases/default/pool.xml
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -19,64 +28,23 @@ write_files:
     </properties>
   append: false
   defer: true
-- path: /opt/oracle/ords/conf/ords/defaults.xml
+- path: /etc/ords/config/global/settings.xml
   permissions: '0644'
   content: |
-    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
     <properties>
-    <entry key="plsql.gateway.enabled">true</entry>
+    <comment>Default created by IaC</comment>
+    <entry key="database.api.enabled">false</entry>
+    <entry key="feature.sdw">false</entry>
     <entry key="jdbc.InitialLimit">10</entry>
     <entry key="jdbc.MaxLimit">100</entry>
+    <entry key="restEnabledSql.active">false</entry>
     <entry key="security.httpsHeaderCheck">X-Forwarded-Proto: https</entry>
-    <entry key="feature.sdw">true</entry>
-    <entry key="restEnabledSql.active">true</entry>
-    <entry key="database.api.enabled">true</entry>
-    <entry key="jdbc.auth.enabled">true</entry>
-    <entry key="cache.caching">false</entry>
-    <entry key="cache.directory">/tmp/apex/cache</entry>
-    <entry key="cache.duration">days</entry>
-    <entry key="cache.expiration">7</entry>
-    <entry key="cache.maxEntries">500</entry>
-    <entry key="cache.monitorInterval">60</entry>
-    <entry key="cache.procedureNameList"/>
-    <entry key="cache.type">lru</entry>
-    <entry key="debug.debugger">false</entry>
-    <entry key="debug.printDebugToScreen">false</entry>
-    <entry key="error.keepErrorMessages">true</entry>
-    <entry key="error.maxEntries">50</entry>
-    <entry key="jdbc.DriverType">thin</entry>
-    <entry key="jdbc.InactivityTimeout">1800</entry>
-    <entry key="jdbc.MaxConnectionReuseCount">1000</entry>
-    <entry key="jdbc.MaxStatementsLimit">10</entry>
-    <entry key="jdbc.MinLimit">1</entry>
-    <entry key="jdbc.statementTimeout">900</entry>
-    <entry key="log.logging">false</entry>
-    <entry key="log.maxEntries">50</entry>
-    <entry key="misc.compress"/>
-    <entry key="misc.defaultPage">apex</entry>
-    <entry key="security.disableDefaultExclusionList">false</entry>
-    <entry key="security.maxEntries">2000</entry>
+    <entry key="standalone.context.path">/ords</entry>
+    <entry key="standalone.http.port">8080</entry>
+    <entry key="standalone.static.context.path">/i</entry>
     </properties>
-  append: false
-  defer: true
-- path: /opt/oracle/ords/conf/ords/standalone/standalone.properties
-  permissions: '0644'
-  content: |
-    jetty.port=8080
-    standalone.context.path=/ords
-    standalone.doc.root=/opt/oracle/ords/conf/ords/standalone/doc_root
-    standalone.scheme.do.not.prompt=true
-    standalone.static.context.path=/i
-  append: false
-  defer: true
-- path: /opt/oracle/ords/ords.conf
-  permissions: '0755'
-  content: |
-    ORDS_CONFIGDIR=/opt/oracle/ords/conf
-    JAVA_HOME=/usr/java/latest
-    JAVA_OPTIONS=-Xmx2048m
-    ORDS_BASE_PATH=/opt/oracle
   append: false
   defer: true
 - path: /opt/oracle/ords/setup.sql
@@ -142,13 +110,11 @@ write_files:
   append: false
   defer: true
 runcmd:
- - systemctl stop ords.service
  - sql admin/${db_password}@'${db_conn}' @/opt/oracle/ords/setup.sql ${db_password}
  - systemctl stop firewalld.service
  - firewall-offline-cmd --zone=public --add-port 8080/tcp
  - systemctl start firewalld.service
- - chown -R oracle:oinstall /opt/oracle/ords/conf
- - /bin/cp -f /opt/oracle/ords/ords.conf /etc/ords/ords.conf
- - java -jar -Xmx1024M /opt/oracle/ords/ords.war configdir /opt/oracle/ords/conf
+ - chown -R oracle:oinstall /etc/ords/config
+ - /bin/cp /etc/ords.conf.custom /etc/ords.conf
  - systemctl start ords.service
  - systemctl enable ords.service
