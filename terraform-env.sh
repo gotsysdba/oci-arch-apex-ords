@@ -1,8 +1,10 @@
 if [[ ! -z ${OCI_CS_TERMINAL_OCID} ]]; then
-        export TF_VAR_region=${OCI_REGION}
-        export TF_VAR_tenancy_ocid=${OCI_TENANCY}
-        export TF_VAR_compartment_ocid=${OCI_TENANCY}
+	export TF_VAR_region=${OCI_REGION}
+	export TF_VAR_tenancy_ocid=${OCI_TENANCY}
+	export TF_VAR_compartment_ocid=${OCI_TENANCY}
 else
+	# Prevent Cloud-Shell Auth
+	unset OCI_AUTH
 	# Populate <> values and source before running terraform as per the README.md 
 	# Required for the OCI Provider
 	export TF_VAR_region="<TENANCY REGION>"
