@@ -118,7 +118,6 @@ resource "oci_core_instance_pool" "instance_pool" {
     port             = "8080"
     vnic_selection   = "PrimaryVnic"
   }
-  depends_on = [oci_core_instance.instance]
   lifecycle {
     // Don't readjust the size as will be pooled
     ignore_changes = [size]
