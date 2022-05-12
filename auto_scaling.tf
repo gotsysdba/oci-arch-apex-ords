@@ -50,4 +50,5 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
     }
   }
   cool_down_in_seconds = "300"
+  depends_on = [oci_core_instance_pool_instance.instance_pool_instance[0]]
 }
