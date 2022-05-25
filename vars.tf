@@ -29,6 +29,10 @@ variable "size" {
 variable "adb_license_model" {
   default = "BRING_YOUR_OWN_LICENSE"
 }
+// Block APEX/ORDS Dev and Admin Tools 
+variable "enable_lbaas_ruleset" {
+  default = "false"
+}
 
 // Additional Resources
 variable "prov_object_storage" {

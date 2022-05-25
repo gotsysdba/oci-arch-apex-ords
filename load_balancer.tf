@@ -52,6 +52,7 @@ resource "oci_load_balancer_listener" "lb_listener_80" {
   default_backend_set_name = oci_load_balancer_backend_set.lb_backend_set.name
   port                     = 80
   protocol                 = "HTTP"
+  rule_set_names           = var.enable_lbaas_ruleset ? [oci_load_balancer_rule_set.lb_rule_set.name] : []
 }
 
 // Ignore changes to avoid overwriting valid certs loaded in later
@@ -61,6 +62,7 @@ resource "oci_load_balancer_listener" "lb_listener_443" {
   default_backend_set_name = oci_load_balancer_backend_set.lb_backend_set.name
   port                     = 443
   protocol                 = "HTTP"
+  rule_set_names           = var.enable_lbaas_ruleset ? [oci_load_balancer_rule_set.lb_rule_set.name] : []
   ssl_configuration {
     certificate_name        = oci_load_balancer_certificate.lb_certificate.certificate_name
     verify_peer_certificate = false
@@ -84,6 +86,13 @@ resource "oci_load_balancer_certificate" "lb_certificate" {
 }
 
 resource "oci_load_balancer_rule_set" "lb_rule_set" {
+  load_balancer_id = oci_load_balancer.lb.id
+  name             = "APEX_Public_Access"
+  items {
+    action = "ADD_HTTP_REQUEST_HEADER"
+    header = "APEX-Public-Access"
+    value = "1"
+  }
   items {
     action = "REDIRECT"
     conditions {
@@ -189,11 +198,4 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
     }
     response_code = "301"
   }
-  items {
-    action = "ADD_HTTP_REQUEST_HEADER"
-    header = "APEX-Public-Access"
-    value = "1"
-  }
-  load_balancer_id = oci_load_balancer.lb.id
-  name             = "APEX_Public_Access"
 }
