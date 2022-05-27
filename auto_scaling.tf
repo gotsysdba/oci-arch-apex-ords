@@ -5,7 +5,7 @@
 ## Depends on Paid Resource
 #####################################################################
 resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
-  count          = local.is_paid ? 1 : 0
+  count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
   display_name   = format("%s-auto-scaling-configuration", var.proj_abrv)
   auto_scaling_resources {

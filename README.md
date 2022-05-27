@@ -12,22 +12,22 @@ Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 ## Architecture
 This Terraform IaC supports 4 different size configurations as defined in vars.tf: ALF (Always Free), S, M, L with variations to the general architecture.  Review the "Setup Environment Variables" below for instructions on how to set the appropriate size (**default:** ALF).
 
-|                              | ALF   | S     | M    | L    | 
-| ---------------------------- | ----- | ----- | ---- | ---- |
-| **Compute Instances (CI)**   | 1     | 1     | 2    | 3    | 
-| **CI Horizontal Scale**      | 1     | 3     | 6    | 9    |
-| **CI CPU Initial**           | 1     | 1     | 2    | 4    |
-| **CI CPU Vertical Scale**    | 1     | 2     | 4    | 8    |
-| **CI Memory Initial**        | 1     | 16    | 32   | 64   |
-| **CI Memory Scale**          | N/A   | 32    | 64   | 192  |
-| **ADB CPU Initial**          | 1     | 1     | 2    | 4    |
-| **ADB CPU Scale**            | N/A   | 3     | 6    | 12   |
-| **ADB Storage (TB)**         | 1     | 1     | 1    | 1    |
-| **Load Balancer (Mbps Min)** | 10    | 10    | 100  | 100  |
-| **Load Balancer (Mbps Max)** | 10    | 480   | 1250 | 1250 |
-| **High Availability**        | FALSE | FALSE | TRUE | TRUE |
-| **Disaster Recovery**        | FALSE | FALSE | TRUE | TRUE |
-| **Dataguard**                | FALSE | FALSE | TRUE | TRUE |
+|                              | ALF   | XS    | S     | M    | L    | 
+| ---------------------------- | ----- | ----- | ----- | ---- | ---- |
+| **Compute Instances (CI)**   | 1     | 1     | 1     | 2    | 3    | 
+| **CI Horizontal Scale**      | 1     | 1     | 3     | 6    | 9    |
+| **CI CPU Initial**           | 1     | 1     | 1     | 2    | 4    |
+| **CI CPU Vertical Scale**    | 1     | 1     | 2     | 4    | 8    |
+| **CI Memory Initial**        | 1     | 1     | 16    | 32   | 64   |
+| **CI Memory Scale**          | N/A   | N/A   | 32    | 64   | 192  |
+| **ADB CPU Initial**          | 1     | 1     | 1     | 2    | 4    |
+| **ADB CPU Scale**            | N/A   | N/A   | 3     | 6    | 12   |
+| **ADB Storage (TB)**         | 1     | 1     | 1     | 1    | 1    |
+| **Load Balancer (Mbps Min)** | 10    | 10    | 10    | 100  | 100  |
+| **Load Balancer (Mbps Max)** | 10    | 10    | 480   | 1250 | 1250 |
+| **High Availability**        | FALSE | FALSE | FALSE | TRUE | TRUE |
+| **Disaster Recovery**        | FALSE | FALSE | FALSE | TRUE | TRUE |
+| **Dataguard**                | FALSE | FALSE | FALSE | TRUE | TRUE |
 
 <mark>Always Free Notice:</mark> This architecture for Always Free utilises most of the Always Free resources; it is expected that your tenancy does not have anything provisioned otherwise deployment will fail with limit issues.
 
