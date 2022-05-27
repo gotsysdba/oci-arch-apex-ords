@@ -108,9 +108,9 @@ write_files:
         commit;
     END;
     /
-    -- The below can be used to ensure ADMIN password in state isn't a usable password
+    -- The below is used to ensure ADMIN password in tfstate isn't a usable password
     -- but it prevents ability to "terraform apply -replace=oci_core_instance.instance"
-    --ALTER USER ADMIN PASSWORD EXPIRE;
+    ALTER USER ADMIN PASSWORD EXPIRE;
     QUIT
   append: false
   defer: true
