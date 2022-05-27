@@ -1,6 +1,11 @@
 # Copyright © 2020, Oracle and/or its affiliates. 
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
+// During destroy, need to wait for VNICs to be released for NSGs
+resource "time_sleep" "wait_120_seconds" {
+  destroy_duration = "120s"
+}
+
 #####################################################################
 ## Always Free + Paid Resources
 #####################################################################
@@ -80,6 +85,7 @@ resource "oci_core_network_security_group" "security_group_ords" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-ords", var.proj_abrv)
+  depends_on     = [ time_sleep.wait_120_seconds ] 
 }
 // Security Group for ORDS - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_ords_egress_grp" {
@@ -119,6 +125,7 @@ resource "oci_core_network_security_group" "security_group_adb" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-adb", var.proj_abrv)
+  depends_on     = [ time_sleep.wait_120_seconds ]
 }
 // Security Group for ADB - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_adb_egress" {
