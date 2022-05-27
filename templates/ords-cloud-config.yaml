@@ -12,10 +12,10 @@ write_files:
   content: |
     APP_VM_OPTS=-Xms512m -Xmx1024m
     ORDS_BASE=/opt/oracle/ords
-    ORDS_CONFIG=/etc/ords/config
+    ORDS_CONFIG=/home/oracle/ords/config
   append: false
   defer: true
-- path: /etc/ords/config/databases/default/pool.xml
+- path: /home/oracle/ords/config/databases/default/pool.xml.tmpl
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -24,11 +24,11 @@ write_files:
     <entry key="db.connectionType">customurl</entry>
     <entry key="db.customURL">jdbc:oracle:thin:@${db_conn}</entry>
     <entry key="db.username">ORDS_PUBLIC_USER_OCI</entry>
-    <entry key="db.password">!${db_password}</entry>
+    <entry key="db.password">!~PASSWORD~</entry>
     </properties>
   append: false
   defer: true
-- path: /etc/ords/config/global/settings.xml
+- path: /home/oracle/ords/config/global/settings.xml
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8"?>
@@ -47,7 +47,7 @@ write_files:
     </properties>
   append: false
   defer: true
-- path: /opt/oracle/ords/setup.sql
+- path: /home/oracle/ords/setup.sql
   permissions: '0755'
   content: |
     set serveroutput on size 99999 feedback off timing on linesize 180 echo on
@@ -57,11 +57,13 @@ write_files:
     BEGIN
       BEGIN
         SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PUBLIC_USER_OCI';
+        execute immediate 'ALTER USER "ORDS_PUBLIC_USER_OCI" IDENTIFIED BY "&1"';
       EXCEPTION WHEN NO_DATA_FOUND THEN
         execute immediate 'CREATE USER "ORDS_PUBLIC_USER_OCI" IDENTIFIED BY "&1"';
       END;
       BEGIN
         SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PLSQL_GATEWAY_OCI';
+        execute immediate 'ALTER USER "ORDS_PLSQL_GATEWAY_OCI" IDENTIFIED BY "&1"';
       EXCEPTION WHEN NO_DATA_FOUND THEN
         execute immediate 'CREATE USER "ORDS_PLSQL_GATEWAY_OCI" IDENTIFIED BY "&1"';
       END;
@@ -106,15 +108,43 @@ write_files:
         commit;
     END;
     /
+    -- The below is used to ensure ADMIN password in tfstate isn't a usable password
+    -- but it prevents ability to "terraform apply -replace=oci_core_instance.instance"
+    ALTER USER ADMIN PASSWORD EXPIRE;
     QUIT
   append: false
   defer: true
+- path: /home/oracle/ords/setup.sh
+  permissions: '0755'
+  content: |
+    #!/bin/env ksh
+    typeset -r ORDS_CFG="/home/oracle/ords/config"
+    typeset -r ADMIN_PASS="$1"
+    typeset -r ADB_CONSTR="$2"
+
+    # Generate a password for the ORDS users (loop to avoid entropy too low issues)
+    for i in {1..10}; do
+      typeset ords_pwd=$(pwmake 80)
+      if (( $? == 0 )) && [[ -n $ords_pwd ]]; then
+        break
+      fi
+    done
+
+    # Insert the password into the pool.xml file
+    sed -e "s|~PASSWORD~|$ords_pwd|" < $ORDS_CFG/databases/default/pool.xml.tmpl > $ORDS_CFG/databases/default/pool.xml
+    
+    # Setup the ORDS user
+    sql admin/"$ADMIN_PASS"@"$ADB_CONSTR" @/home/oracle/ords/setup.sql $ords_pwd
+
+    # Post Setup
+    systemctl stop firewalld.service
+    firewall-offline-cmd --zone=public --add-port 8080/tcp
+    systemctl start firewalld.service
+    chown -R oracle:oinstall /home/oracle/ords
+    /bin/cp /etc/ords.conf.custom /etc/ords.conf
+    systemctl restart ords.service
+    systemctl enable ords.service
+  append: false
+  defer: true
 runcmd:
- - sql admin/${db_password}@'${db_conn}' @/opt/oracle/ords/setup.sql ${db_password}
- - systemctl stop firewalld.service
- - firewall-offline-cmd --zone=public --add-port 8080/tcp
- - systemctl start firewalld.service
- - chown -R oracle:oinstall /etc/ords/config
- - /bin/cp /etc/ords.conf.custom /etc/ords.conf
- - systemctl start ords.service
- - systemctl enable ords.service
+  - /home/oracle/ords/setup.sh '${db_password}' '${db_conn}'

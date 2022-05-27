@@ -23,7 +23,7 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   db_workload                 = "OLTP"
   display_name                = format("%sDB_%s", upper(var.proj_abrv), local.sizing)
   is_free_tier                = local.is_paid ? false : true
-  is_auto_scaling_enabled     = local.is_paid
+  is_auto_scaling_enabled     = local.is_scalable
   license_model               = local.is_paid ? var.adb_license_model : "LICENSE_INCLUDED"
   whitelisted_ips             = local.is_paid ? null : [oci_core_vcn.vcn.id] 
   nsg_ids                     = local.adb_private_endpoint ? [oci_core_network_security_group.security_group_adb[0].id] : null

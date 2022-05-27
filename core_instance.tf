@@ -63,13 +63,13 @@ resource "oci_core_instance" "instance" {
 #####################################################################
 // Create an ORDS image from the core after ORDS is configured
 resource "oci_core_image" "ords_instance_image" {
-  count          = local.is_paid ? 1 : 0
+  count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
   instance_id    = oci_core_instance.instance.id
 }
 
 resource "oci_core_instance_configuration" "instance_configuration" {
-  count          = local.is_paid ? 1 : 0
+  count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
   display_name   = format("%s-instance-configuration", var.proj_abrv)
   instance_details { 
@@ -99,7 +99,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 }
 
 resource "oci_core_instance_pool" "instance_pool" {
-  count                     = local.is_paid ? 1 : 0
+  count                     = local.is_scalable ? 1 : 0
   compartment_id            = local.compartment_ocid
   instance_configuration_id = oci_core_instance_configuration.instance_configuration[0].id  
 	dynamic "placement_configurations" {
@@ -127,7 +127,7 @@ resource "oci_core_instance_pool" "instance_pool" {
 
 // Add the "core" instance into the pool
 resource "oci_core_instance_pool_instance" "instance_pool_instance" {
-  count            = local.is_paid ? 1 : 0
+  count            = local.is_scalable ? 1 : 0
   instance_id      = oci_core_instance.instance.id
   instance_pool_id = oci_core_instance_pool.instance_pool[0].id
 }

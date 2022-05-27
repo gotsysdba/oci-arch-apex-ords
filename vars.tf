@@ -68,6 +68,7 @@ variable "adb_cpu_core_count" {
     "L"   = 4
     "M"   = 2
     "S"   = 1
+    "XS"  = 1
     "ALF" = 1
   }
 }
@@ -78,6 +79,7 @@ variable "adb_dataguard" {
     "L"   = true
     "M"   = true
     "S"   = false
+    "XS"  = false
     "ALF" = false
   }
 }
@@ -88,6 +90,7 @@ variable "flex_lb_min_shape" {
     "L"   = 100
     "M"   = 100
     "S"   = 10
+    "XS"  = 10
     "ALF" = 10
   }
 }
@@ -98,28 +101,31 @@ variable "flex_lb_max_shape" {
     "L"   = 1250
     "M"   = 1250
     "S"   = 480
+    "XS"  = 10
     "ALF" = 10
   }
 }
 
-// Number of ORDS Servers; Scalable x3 (excl. ALF)
+// Number of ORDS Servers; Scalable x3 (excl. XS/ALF)
 variable "compute_instances" {
   type = map
   default = {
     "L"   = 3
     "M"   = 2
     "S"   = 1
+    "XS"  = 1
     "ALF" = 1
   }
 }
 
-// Scalable x2 (excl. ALF)
+// Scalable x2 (excl. XS/ALF)
 variable "compute_flex_shape_ocpus" {
   type = map
   default = {
     "L"   = 4
     "M"   = 2
     "S"   = 1
+    "XS"  = 1
     "ALF" = 1
   }
 }
@@ -134,6 +140,7 @@ variable "adb_db_version" {
     "L"   = "19c"
     "M"   = "19c"
     "S"   = "19c"
+    "XS"  = "19c"
     "ALF" = "21c"
   }
 }
@@ -177,6 +184,7 @@ locals {
 locals {
   sizing               = var.always_free ? "ALF" : var.size
   is_paid              = local.sizing != "ALF" ? true : false
+  is_scalable          = local.sizing != "ALF" && local.sizing != "XS" ? true : false
   adb_private_endpoint = local.sizing != "ALF" ? true  : false
   compute_image        = local.sizing != "ALF" ? "Oracle Autonomous Linux" : "Oracle Linux"
   compute_shape        = local.sizing != "ALF" ? "VM.Standard.E3.Flex" : "VM.Standard.E2.1.Micro"

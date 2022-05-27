@@ -5,3 +5,12 @@ output "lb_address" {
   value       = oci_load_balancer.lb.ip_addresses
   description = "The Pubic facing IP Address assigned to the Load Balancer"
 }
+
+output "ADMIN_Password" {
+  value = "Please change the ADB ADMIN password manually in the OCI console for security"
+}
+
+// For debugging cloud-init only
+//output "cloud-init" {
+//  value = data.template_file.userdata.rendered
+//}
