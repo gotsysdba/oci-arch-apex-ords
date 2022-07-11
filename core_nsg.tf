@@ -66,7 +66,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_lb_inre
     }
   }
 }
-resource  "oci_core_network_security_group_security_rule" "security_group_lb_inress_TCP443" {
+resource "oci_core_network_security_group_security_rule" "security_group_lb_inress_TCP443" {
   network_security_group_id = oci_core_network_security_group.security_group_lb.id
   direction                 = "INGRESS"
   protocol                  = "6"
@@ -85,7 +85,7 @@ resource "oci_core_network_security_group" "security_group_ords" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-ords", var.proj_abrv)
-  depends_on     = [ time_sleep.wait_120_seconds ] 
+  depends_on     = [time_sleep.wait_120_seconds]
 }
 // Security Group for ORDS - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_ords_egress_grp" {
@@ -125,7 +125,7 @@ resource "oci_core_network_security_group" "security_group_adb" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   display_name   = format("%s-security-group-adb", var.proj_abrv)
-  depends_on     = [ time_sleep.wait_120_seconds ]
+  depends_on     = [time_sleep.wait_120_seconds]
 }
 // Security Group for ADB - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_adb_egress" {

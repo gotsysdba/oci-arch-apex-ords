@@ -4,11 +4,11 @@
 resource "oci_logging_log_group" "logging_log_group" {
   count          = var.enable_lb_logging ? 1 : 0
   compartment_id = local.compartment_ocid
-  display_name = format("%s-log-group", var.proj_abrv)
+  display_name   = format("%s-log-group", var.proj_abrv)
 }
 
 resource "oci_logging_log" "lb_error_log" {
-  count            = var.enable_lb_logging ? 1 : 0
+  count = var.enable_lb_logging ? 1 : 0
   configuration {
     compartment_id = local.compartment_ocid
     source {
@@ -28,7 +28,7 @@ resource "oci_logging_log" "lb_error_log" {
 }
 
 resource "oci_logging_log" "lb_access_log" {
-  count            = var.enable_lb_logging ? 1 : 0
+  count = var.enable_lb_logging ? 1 : 0
   configuration {
     compartment_id = local.compartment_ocid
     source {

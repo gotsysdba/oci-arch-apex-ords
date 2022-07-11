@@ -25,13 +25,13 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   is_free_tier                = local.is_paid ? false : true
   is_auto_scaling_enabled     = local.is_scalable
   license_model               = local.is_paid ? var.adb_license_model : "LICENSE_INCLUDED"
-  whitelisted_ips             = local.is_paid ? null : [oci_core_vcn.vcn.id] 
+  whitelisted_ips             = local.is_paid ? null : [oci_core_vcn.vcn.id]
   nsg_ids                     = local.adb_private_endpoint ? [oci_core_network_security_group.security_group_adb[0].id] : null
   private_endpoint_label      = local.adb_private_endpoint ? "ADBPrivateEndpoint" : null
   subnet_id                   = local.adb_private_endpoint ? oci_core_subnet.subnet_private[0].id : null
   is_mtls_connection_required = false
   // This should be variabled but there's an issue with creating DG on initial creation
-  is_data_guard_enabled       = false
+  is_data_guard_enabled = false
   lifecycle {
     ignore_changes = all
   }

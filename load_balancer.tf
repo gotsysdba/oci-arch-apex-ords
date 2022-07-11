@@ -7,8 +7,8 @@ resource "oci_load_balancer" "lb" {
   shape          = "flexible"
   is_private     = false
   shape_details {
-      minimum_bandwidth_in_mbps = var.flex_lb_min_shape[local.sizing]
-      maximum_bandwidth_in_mbps = var.flex_lb_max_shape[local.sizing]
+    minimum_bandwidth_in_mbps = var.flex_lb_min_shape[local.sizing]
+    maximum_bandwidth_in_mbps = var.flex_lb_max_shape[local.sizing]
   }
   subnet_ids = [
     oci_core_subnet.subnet_public.id
@@ -91,7 +91,7 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
   items {
     action = "ADD_HTTP_REQUEST_HEADER"
     header = "APEX-Public-Access"
-    value = "1"
+    value  = "1"
   }
   items {
     action = "REDIRECT"
@@ -101,8 +101,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "SUFFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
@@ -116,8 +116,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "SUFFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
@@ -131,8 +131,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "SUFFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
@@ -146,8 +146,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "SUFFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
@@ -161,8 +161,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "SUFFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
@@ -176,8 +176,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "PREFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
@@ -191,8 +191,8 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
       operator        = "SUFFIX_MATCH"
     }
     redirect_uri {
-      host = "apex.oracle.com"
-      path = "/"
+      host     = "apex.oracle.com"
+      path     = "/"
       protocol = "https"
       query    = ""
     }
