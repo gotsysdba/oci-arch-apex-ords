@@ -1,9 +1,10 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords)
 # oci-arch-apex-ords
 
-![Oracle APEX](images/APEX_Logo.png "Oracle APEX")
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords)
 
 Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
+
+![Oracle APEX](images/APEX_Logo.png "Oracle APEX")
 
 ## Release Info
 
