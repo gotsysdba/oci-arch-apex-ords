@@ -1,20 +1,20 @@
 # Copyright © 2020, Oracle and/or its affiliates. 
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-resource "random_password" "autonomous_database_password" {
+resource "random_password" "adb_password" {
   length           = 16
   min_numeric      = 1
   min_lower        = 1
   min_upper        = 1
   min_special      = 1
-  override_special = "_#"
+  override_special = "_#[]"
   keepers = {
     uuid = "uuid()"
   }
 }
 
 resource "oci_database_autonomous_database" "autonomous_database" {
-  admin_password              = random_password.autonomous_database_password.result
+  admin_password              = random_password.adb_password.result
   compartment_id              = local.compartment_ocid
   db_name                     = format("%sDB%s", upper(var.proj_abrv), local.sizing)
   cpu_core_count              = var.adb_cpu_core_count[local.sizing]
@@ -32,7 +32,8 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   is_mtls_connection_required = false
   // This should be variabled but there's an issue with creating DG on initial creation
   is_data_guard_enabled = false
+  // Data is an asset; don't allow the DB to be destroyed
   lifecycle {
-    ignore_changes = all
+    prevent_destroy = true
   }
 }

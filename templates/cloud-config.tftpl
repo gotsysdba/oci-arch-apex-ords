@@ -2,10 +2,10 @@
 output: {all: '| tee -a /var/log/cloud-init-ords.log'}
 package_upgrade: false
 packages:
-  - yum-cron 
-  - ords 
-  - sqlcl
-  - jre-12
+  - yum-cron
+  - [jre-17, ${jre_version}]
+  - [ords, ${ords_version}] 
+  - [sqlcl, ${sqlcl_version}]
 write_files:
 - path: /etc/ords.conf.custom
   permissions: '0644'
@@ -109,7 +109,6 @@ write_files:
     END;
     /
     -- The below is used to ensure ADMIN password in tfstate isn't a usable password
-    -- but it prevents ability to "terraform apply -replace=oci_core_instance.instance"
     ALTER USER ADMIN PASSWORD EXPIRE;
     QUIT
   append: false

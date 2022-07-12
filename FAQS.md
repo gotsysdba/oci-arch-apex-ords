@@ -10,7 +10,7 @@
 
 ## **Q: Is this architecture still relevant now that Oracle supports "Vanity URLs" against the ADB**
 
-**A:** Yes and Maybe.  For Always Free (ALF), this architecture is still the only way to get TLS enabled vanity URLs.  For Paid tenancies, this architecture allows for _transparent_ distribution of load between the Compute Instances and the ADB while adding a layer of customer managed fault tolerance.  While fault tolerance is expected, it is unclear, at this time, how much load can be catered for.
+**A:** Yes and Maybe.  For Always Free (ALF), this architecture is still the only way to get TLS enabled vanity URLs.  For Paid tenancies, this architecture allows for _transparent_ distribution of load between the Compute Instances and the ADB while adding a layer of customer managed fault tolerance.  Additionally, the load supported by the "Oracle Managed ORDS" may not be sufficient for your purposes.  Customer Managed ORDS allows for scalability if required.
 
 ---
 

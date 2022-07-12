@@ -53,14 +53,17 @@ resource "oci_core_instance" "instance" {
     user_data = "${base64encode(
       templatefile("${path.root}/templates/cloud-config.tftpl",
         {
-          db_password = random_password.autonomous_database_password.result
-          db_conn     = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
+          db_password   = random_password.adb_password.result
+          db_conn       = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
+          ords_version  = var.sotfware_ver["ords"]
+          sqlcl_version = var.sotfware_ver["sqlcl"]
+          jre_version   = var.sotfware_ver["jre-17"]
         }
       )
     )}"
   }
   lifecycle {
-    ignore_changes = all
+    create_before_destroy = true
   }
 }
 
