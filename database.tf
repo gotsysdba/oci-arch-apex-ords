@@ -32,8 +32,8 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   is_mtls_connection_required = false
   // This should be variabled but there's an issue with creating DG on initial creation
   is_data_guard_enabled = false
-  // Data is an asset; don't allow the DB to be destroyed
-  lifecycle {
-    prevent_destroy = true
-  }
+  // Data is an asset; don't allow the DB to be destroyed, uncomment as required
+  //lifecycle {
+  //  prevent_destroy = true
+  //}
 }
