@@ -13,12 +13,12 @@ resource "oci_core_vcn" "vcn" {
 // to get the agent for bastion; so restrict SSH to only the public cidr
 resource "oci_core_default_security_list" "export_Default-Security-List-for-apexpoc-vcn" {
   compartment_id = local.compartment_ocid
-  display_name = "Default Security List"
+  display_name   = "Default Security List"
   egress_security_rules {
     destination      = "0.0.0.0/0"
     destination_type = "CIDR_BLOCK"
-    protocol  = "all"
-    stateless = "false"
+    protocol         = "all"
+    stateless        = "false"
   }
   ingress_security_rules {
     protocol    = "6"

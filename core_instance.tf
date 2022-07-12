@@ -26,7 +26,7 @@ resource "oci_core_instance" "instance" {
       baseline_ocpu_utilization = "BASELINE_1_2"
       ocpus                     = var.compute_flex_shape_ocpus[local.sizing]
       // Memory OCPU * 16GB
-      memory_in_gbs             = var.compute_flex_shape_ocpus[local.sizing] * 16
+      memory_in_gbs = var.compute_flex_shape_ocpus[local.sizing] * 16
     }
   }
   source_details {
@@ -37,7 +37,7 @@ resource "oci_core_instance" "instance" {
     are_all_plugins_disabled = false
     is_management_disabled   = false
     is_monitoring_disabled   = false
-    plugins_config  {
+    plugins_config {
       desired_state = "ENABLED"
       name          = "Bastion"
     }
@@ -50,15 +50,14 @@ resource "oci_core_instance" "instance" {
   }
   metadata = {
     ssh_authorized_keys = tls_private_key.example_com.public_key_openssh
-    user_data           = "${base64encode(
-        templatefile("templates/cloud-config.tftpl",
-          {
-            db_password   = random_password.autonomous_database_password.result
-            db_conn       = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : 
-                            v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"],0)
-          }
-        )
-      )}"
+    user_data = "${base64encode(
+      templatefile("${path.root}/templates/cloud-config.tftpl",
+        {
+          db_password = random_password.autonomous_database_password.result
+          db_conn     = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
+        }
+      )
+    )}"
   }
   lifecycle {
     ignore_changes = all
@@ -80,7 +79,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
   count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
   display_name   = format("%s-instance-configuration", var.proj_abrv)
-  instance_details { 
+  instance_details {
     instance_type = "compute"
     launch_details {
       compartment_id = local.compartment_ocid
@@ -109,14 +108,14 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 resource "oci_core_instance_pool" "instance_pool" {
   count                     = local.is_scalable ? 1 : 0
   compartment_id            = local.compartment_ocid
-  instance_configuration_id = oci_core_instance_configuration.instance_configuration[0].id  
-	dynamic "placement_configurations" {
-		for_each = data.oci_identity_availability_domains.availability_domains.availability_domains
+  instance_configuration_id = oci_core_instance_configuration.instance_configuration[0].id
+  dynamic "placement_configurations" {
+    for_each = data.oci_identity_availability_domains.availability_domains.availability_domains
     content {
-			availability_domain = placement_configurations.value["name"]
-			primary_subnet_id   = oci_core_subnet.subnet_private[0].id
-		}
-	}
+      availability_domain = placement_configurations.value["name"]
+      primary_subnet_id   = oci_core_subnet.subnet_private[0].id
+    }
+  }
   // Create without intances (the core added later); Auto-scaling will adjust
   size         = 0
   display_name = format("%s-ords-pool", var.proj_abrv)
@@ -128,7 +127,7 @@ resource "oci_core_instance_pool" "instance_pool" {
   }
   lifecycle {
     // Don't readjust the size as will be pooled
-    ignore_changes = [size]
+    ignore_changes        = [size]
     create_before_destroy = true
   }
 }

@@ -12,14 +12,14 @@ resource "null_resource" "oci_whitelist" {
   triggers = {
     ci_public_ip = oci_core_instance.instance.public_ip
   }
-  provisioner "local-exec" {    
+  provisioner "local-exec" {
     command = "oci db autonomous-database update --autonomous-database-id ${local.adb_ocid} --whitelisted-ips '[\"${local.ci_pubip}\"]' --force"
     environment = {
-      OCI_CLI_USER         = var.current_user_ocid
-      OCI_CLI_REGION       = var.region
-      OCI_CLI_TENANCY      = var.tenancy_ocid
-      OCI_CLI_FINGERPRINT  = var.fingerprint != "" ? var.fingerprint : null
-      OCI_CLI_KEY_FILE     = var.private_key_path != "" ? var.private_key_path : null
-    }  
+      OCI_CLI_USER        = var.current_user_ocid
+      OCI_CLI_REGION      = var.region
+      OCI_CLI_TENANCY     = var.tenancy_ocid
+      OCI_CLI_FINGERPRINT = var.fingerprint != "" ? var.fingerprint : null
+      OCI_CLI_KEY_FILE    = var.private_key_path != "" ? var.private_key_path : null
+    }
   }
 }

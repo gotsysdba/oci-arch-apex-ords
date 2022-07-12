@@ -24,7 +24,7 @@ variable "proj_abrv" {
   default = "apexpoc"
 }
 variable "size" {
-    default = "ALF"
+  default = "ALF"
 }
 variable "adb_license_model" {
   default = "BRING_YOUR_OWN_LICENSE"
@@ -37,22 +37,22 @@ variable "enable_lbaas_ruleset" {
 // Additional Resources
 variable "prov_object_storage" {
   description = "Provision Object Storage Bucket"
-  default = "false"
+  default     = "false"
 }
 
 variable "prov_data_safe" {
   description = "Provision Data Safe"
-  default = "false"
+  default     = "false"
 }
 
 variable "prov_oic" {
   description = "Provision Oracle Integration Cloud"
-  default = "false"
+  default     = "false"
 }
 
 variable "enable_lb_logging" {
   description = "Enable Load Balancer Logging"
-  default = "false"
+  default     = "false"
 }
 
 //The sizing is catering for schema.yaml visibility
@@ -63,7 +63,7 @@ variable "always_free" {
 }
 
 variable "adb_cpu_core_count" {
-  type = map
+  type = map(any)
   default = {
     "L"   = 4
     "M"   = 2
@@ -74,7 +74,7 @@ variable "adb_cpu_core_count" {
 }
 
 variable "adb_dataguard" {
-  type = map
+  type = map(any)
   default = {
     "L"   = true
     "M"   = true
@@ -85,7 +85,7 @@ variable "adb_dataguard" {
 }
 
 variable "flex_lb_min_shape" {
-  type = map
+  type = map(any)
   default = {
     "L"   = 100
     "M"   = 100
@@ -96,7 +96,7 @@ variable "flex_lb_min_shape" {
 }
 
 variable "flex_lb_max_shape" {
-  type = map
+  type = map(any)
   default = {
     "L"   = 1250
     "M"   = 1250
@@ -108,7 +108,7 @@ variable "flex_lb_max_shape" {
 
 // Number of ORDS Servers; Scalable x3 (excl. XS/ALF)
 variable "compute_instances" {
-  type = map
+  type = map(any)
   default = {
     "L"   = 3
     "M"   = 2
@@ -120,7 +120,7 @@ variable "compute_instances" {
 
 // Scalable x2 (excl. XS/ALF)
 variable "compute_flex_shape_ocpus" {
-  type = map
+  type = map(any)
   default = {
     "L"   = 4
     "M"   = 2
@@ -135,7 +135,7 @@ variable "adb_storage_size_in_tbs" {
 }
 
 variable "adb_db_version" {
-  type = map
+  type = map(any)
   default = {
     "L"   = "19c"
     "M"   = "19c"
@@ -185,7 +185,7 @@ locals {
   sizing               = var.always_free ? "ALF" : var.size
   is_paid              = local.sizing != "ALF" ? true : false
   is_scalable          = local.sizing != "ALF" && local.sizing != "XS" ? true : false
-  adb_private_endpoint = local.sizing != "ALF" ? true  : false
+  adb_private_endpoint = local.sizing != "ALF" ? true : false
   compute_image        = local.sizing != "ALF" ? "Oracle Autonomous Linux" : "Oracle Linux"
   compute_shape        = local.sizing != "ALF" ? "VM.Standard.E3.Flex" : "VM.Standard.E2.1.Micro"
   is_flexible_shape    = contains(local.compute_flexible_shapes, local.compute_shape)

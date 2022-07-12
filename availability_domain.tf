@@ -14,7 +14,7 @@ data "oci_limits_limit_values" "limits_limit_values" {
   filter {
     name   = "value"
     values = ["2"]
-  }    
+  }
 }
 
 // If we have a value from limits, use that as ALF, otherwise use AD-1
