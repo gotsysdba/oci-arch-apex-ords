@@ -34,6 +34,16 @@ variable "enable_lbaas_ruleset" {
   default = "false"
 }
 
+// ORDS Software Versions
+variable "sotfware_ver" {
+  type = map(any)
+  default = {
+    "jre-17" = "2000:jdk-17-17.0.3.1-ga.x86_64"
+    "ords"   = "22.2.0-6.el7"
+    "sqlcl"  = "22.2.0-2.el7"
+  }
+}
+
 // Additional Resources
 variable "prov_object_storage" {
   description = "Provision Object Storage Bucket"
