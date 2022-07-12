@@ -1,6 +1,6 @@
 # oci-arch-apex-ords
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gotsysdba_oci-arch-apex-ords&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gotsysdba_oci-arch-apex-ords)  ![Verification](https://github.com/gotsysdba/oci-arch-apex-ords/actions/workflows/pull-request-check.yml/badge.svg)
 
 Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 
@@ -34,7 +34,7 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 | **Disaster Recovery**        | FALSE | FALSE | FALSE | TRUE | TRUE |
 | **Dataguard**                | FALSE | FALSE | FALSE | TRUE | TRUE |
 
-<mark>Always Free Notice:</mark> This architecture for Always Free utilises most of the Always Free resources; it is expected that your tenancy does not have anything provisioned otherwise deployment will fail with limit issues.
+_**Always Free Notice:**_ This architecture for Always Free utilises most of the Always Free resources; it is expected that your tenancy does not have anything provisioned otherwise deployment will fail with limit issues.
 
 ### L Architecture Diagram
 
