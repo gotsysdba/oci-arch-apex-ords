@@ -57,7 +57,7 @@ resource "oci_core_instance" "instance" {
           db_conn       = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
           ords_version  = var.sotfware_ver["ords"]
           sqlcl_version = var.sotfware_ver["sqlcl"]
-          jre_version   = var.sotfware_ver["jre-17"]
+          jdk_version   = var.sotfware_ver["jdk-17"]
         }
       )
     )}"
