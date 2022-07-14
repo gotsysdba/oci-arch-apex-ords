@@ -3,7 +3,7 @@ output: {all: '| tee -a /var/log/cloud-init-ords.log'}
 package_upgrade: false
 packages:
   - yum-cron
-  - [jre-17, ${jre_version}]
+  - [jdk-17, ${jdk_version}]
   - [ords, ${ords_version}] 
   - [sqlcl, ${sqlcl_version}]
 write_files:

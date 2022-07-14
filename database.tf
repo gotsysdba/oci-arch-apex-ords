@@ -16,12 +16,12 @@ resource "random_password" "adb_password" {
 resource "oci_database_autonomous_database" "autonomous_database" {
   admin_password              = random_password.adb_password.result
   compartment_id              = local.compartment_ocid
-  db_name                     = format("%sDB%s", upper(var.proj_abrv), local.sizing)
+  db_name                     = format("%sDB", upper(var.proj_abrv))
   cpu_core_count              = var.adb_cpu_core_count[local.sizing]
   data_storage_size_in_tbs    = var.adb_storage_size_in_tbs
   db_version                  = var.adb_db_version[local.sizing]
   db_workload                 = "OLTP"
-  display_name                = format("%sDB_%s", upper(var.proj_abrv), local.sizing)
+  display_name                = format("%sDB", upper(var.proj_abrv))
   is_free_tier                = local.is_paid ? false : true
   is_auto_scaling_enabled     = local.is_scalable
   license_model               = local.is_paid ? var.adb_license_model : "LICENSE_INCLUDED"
