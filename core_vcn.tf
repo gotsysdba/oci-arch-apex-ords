@@ -116,4 +116,8 @@ resource "oci_core_subnet" "subnet_private" {
   dhcp_options_id            = oci_core_vcn.vcn.default_dhcp_options_id
   dns_label                  = "priv"
   prohibit_public_ip_on_vnic = true
+  // This is to prevent the attempt to destroy the NSG before the subnet (VNIC attachment)
+  depends_on = [
+    oci_core_network_security_group.security_group_adb
+  ]
 }
