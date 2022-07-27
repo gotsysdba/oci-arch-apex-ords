@@ -3,9 +3,9 @@ output: {all: '| tee -a /var/log/cloud-init-ords.log'}
 package_upgrade: false
 packages:
   - yum-cron
-  - [jdk-17, ${jdk_version}]
-  - [ords, ${ords_version}] 
-  - [sqlcl, ${sqlcl_version}]
+  - jdk-17
+  - ords
+  - sqlcl
 write_files:
 - path: /etc/ords.conf.custom
   permissions: '0644'
@@ -24,6 +24,7 @@ write_files:
     <entry key="db.connectionType">customurl</entry>
     <entry key="db.customURL">jdbc:oracle:thin:@${db_conn}</entry>
     <entry key="db.username">ORDS_PUBLIC_USER_OCI</entry>
+    <entry key="plsql.gateway.mode">proxied</entry>
     </properties>
   append: false
   defer: true
