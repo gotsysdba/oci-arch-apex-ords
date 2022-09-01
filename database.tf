@@ -30,7 +30,9 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   private_endpoint_label      = local.adb_private_endpoint ? "ADBPrivateEndpoint" : null
   subnet_id                   = local.adb_private_endpoint ? oci_core_subnet.subnet_private[0].id : null
   is_mtls_connection_required = false
-  ignore_changes              = [whitelisted_ips]
+  lifecycle {
+    ignore_changes = [whitelisted_ips]
+  }
   // This should be variabled but there's an issue with creating DG on initial creation
   is_data_guard_enabled = false
   // Data is an asset; don't allow the DB to be destroyed, uncomment as required
