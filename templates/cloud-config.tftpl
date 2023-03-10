@@ -2,6 +2,7 @@
 output: {all: '| tee -a /var/log/cloud-init-ords.log'}
 package_upgrade: false
 packages:
+  - ksh
   - yum-cron
   - jdk-17
   - ords
