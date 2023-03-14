@@ -20,9 +20,9 @@ This Terraform IaC supports 4 different size configurations as defined in vars.t
 |                              | ALF   | XS    | S     | M    | L    |
 | ---------------------------- | ----- | ----- | ----- | ---- | ---- |
 | **Compute Instances (CI)**   | 1     | 1     | 1     | 2    | 3    |
-| **CI Horizontal Scale**      | 1     | 1     | 3     | 6    | 9    |
+| **CI Horizontal Scale**      | N/A   | N/A   | 3     | 6    | 9    |
 | **CI CPU Initial**           | 1     | 1     | 1     | 2    | 4    |
-| **CI CPU Vertical Scale**    | 1     | 1     | 2     | 4    | 8    |
+| **CI CPU Vertical Scale**    | N/A   | N/A   | 2     | 4    | 8    |
 | **CI Memory Initial**        | 1     | 1     | 16    | 32   | 64   |
 | **CI Memory Scale**          | N/A   | N/A   | 32    | 64   | 192  |
 | **ADB CPU Initial**          | 1     | 1     | 1     | 2    | 4    |

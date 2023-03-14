@@ -197,7 +197,7 @@ locals {
   is_scalable          = local.sizing != "ALF" && local.sizing != "XS" ? true : false
   adb_private_endpoint = local.sizing != "ALF" ? true : false
   compute_image        = local.sizing != "ALF" ? "Oracle Autonomous Linux" : "Oracle Linux"
-  compute_shape        = local.sizing != "ALF" ? "VM.Standard.E3.Flex" : "VM.Standard.E2.1.Micro"
+  compute_shape        = local.sizing != "ALF" ? "VM.Standard.E4.Flex" : "VM.Standard.E2.1.Micro"
   is_flexible_shape    = contains(local.compute_flexible_shapes, local.compute_shape)
   compartment_ocid     = var.compartment_ocid != "" ? var.compartment_ocid : var.tenancy_ocid
 }

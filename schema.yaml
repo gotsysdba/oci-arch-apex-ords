@@ -2,7 +2,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 title: "OCI APEX Implemenation using Customer Managed ORDS"
 description: "Highly Available/Scalable architecuture running APEX in OCI with Customer Managed ORDS"
-informationalText: "This IaC supports 5 different size configurations: ALF (Always Free), S, M, L, XL with variations to the general architecture."
+informationalText: "This IaC supports 5 different size configurations: ALF (Always Free), XS, S, M, L with variations to the general architecture."
 schemaVersion: 1.0.0
 version: "20210901"
 
@@ -92,6 +92,7 @@ variables:
     title: "Architecture Size"
     default: "ALF"
     enum:
+      - XS
       - S
       - M
       - L

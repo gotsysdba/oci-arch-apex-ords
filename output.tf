@@ -2,12 +2,16 @@
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 output "lb_address" {
-  value       = oci_load_balancer.lb.ip_address_details[0].ip_address
+  value       = format("https://%s", oci_load_balancer.lb.ip_address_details[0].ip_address)
   description = "The Pubic facing IP Address assigned to the Load Balancer"
 }
 
 output "ADMIN_Password" {
   value = "Please change the ADB ADMIN password manually in the OCI console for security"
+}
+
+output "Patience" {
+  value = "After Deployment, Please have patience (5-10min) as the Customer Managed ORDS configures itself"
 }
 
 // For debugging cloud-init only
