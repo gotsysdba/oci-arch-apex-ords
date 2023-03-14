@@ -57,7 +57,7 @@ variableGroups:
       - vcn_is_ipv6enabled
       - public_subnet_cidr
       - private_subnet_cidr
-      - software_ver
+      - sotfware_ver
       - enable_lbaas_ruleset
     visible: false
 
