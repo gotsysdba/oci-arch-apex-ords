@@ -160,4 +160,4 @@ Placing that IPAddress in a web browser will redirect you to the secure APEX por
 [Frequently Asked Questions](FAQS.md)
 
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
-[magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/gotsysdba/oci-arch-apex-ords/oci-arch-apex-ords.zip
+[magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/gotsysdba/oci-arch-apex-ords/archive/refs/tags/2.0.0.zip
