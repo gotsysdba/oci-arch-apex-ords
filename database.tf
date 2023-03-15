@@ -27,7 +27,7 @@ resource "oci_database_autonomous_database" "autonomous_database" {
   license_model               = local.is_paid ? var.adb_license_model : "LICENSE_INCLUDED"
   whitelisted_ips             = local.is_paid ? null : [oci_core_vcn.vcn.id]
   nsg_ids                     = local.adb_private_endpoint ? [oci_core_network_security_group.security_group_adb[0].id] : null
-  private_endpoint_label      = local.adb_private_endpoint ? "ADBPrivateEndpoint" : null
+  private_endpoint_label      = local.adb_private_endpoint ? lower(var.proj_abrv) : null
   subnet_id                   = local.adb_private_endpoint ? oci_core_subnet.subnet_private[0].id : null
   is_mtls_connection_required = false
   lifecycle {
