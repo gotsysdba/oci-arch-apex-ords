@@ -189,12 +189,12 @@ resource "oci_load_balancer_rule_set" "lb_rule_set" {
   }
 }
 
-// Add ALF Instance to LBaaS
+// Add Instance to LBaaS if not part of the Pool
 resource "oci_load_balancer_backend" "lb_backend" {
   count            = local.is_scalable ? 0 : 1
   load_balancer_id = oci_load_balancer.lb.id
   backendset_name  = oci_load_balancer_backend_set.lb_backend_set.name
-  ip_address       = oci_core_instance.instance[0].private_ip
+  ip_address       = oci_core_instance.instance.private_ip
   port             = 8080
   backup           = false
   drain            = false

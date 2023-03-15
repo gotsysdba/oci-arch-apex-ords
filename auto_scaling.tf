@@ -1,9 +1,9 @@
 # Copyright © 2020, Oracle and/or its affiliates. 
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-#####################################################################
-## Depends on Paid Resource
-#####################################################################
+####################################################################
+# Depends on Paid Resource
+####################################################################
 resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
   count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
@@ -50,4 +50,5 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
     }
   }
   cool_down_in_seconds = "300"
+  depends_on           = [oci_core_instance_pool_instance.instance_pool_instance[0]]
 }

@@ -180,17 +180,7 @@ variable "private_subnet_cidr" {
   default = "10.0.2.0/24"
 }
 
-# Dictionary Locals
-locals {
-  compute_flexible_shapes = [
-    "VM.Standard.E3.Flex",
-    "VM.Standard.E4.Flex",
-    "VM.Standard.A1.Flex",
-    "VM.Optimized3.Flex"
-  ]
-}
-
-# Dynamic Vars
+# Dynamic Locals
 locals {
   sizing               = var.always_free ? "ALF" : var.size
   is_paid              = local.sizing != "ALF" ? true : false
@@ -198,6 +188,6 @@ locals {
   adb_private_endpoint = local.sizing != "ALF" ? true : false
   compute_image        = local.sizing != "ALF" ? "Oracle Autonomous Linux" : "Oracle Linux"
   compute_shape        = local.sizing != "ALF" ? "VM.Standard.E4.Flex" : "VM.Standard.E2.1.Micro"
-  is_flexible_shape    = contains(local.compute_flexible_shapes, local.compute_shape)
+  is_flexible_shape = length(regexall("Flex", local.compute_shape)) > 0 ? true : false
   compartment_ocid     = var.compartment_ocid != "" ? var.compartment_ocid : var.tenancy_ocid
 }

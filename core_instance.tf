@@ -7,7 +7,6 @@ data "oci_core_images" "images" {
   operating_system         = local.compute_image
   operating_system_version = var.linux_os_version
   shape                    = local.compute_shape
-
   filter {
     name   = "display_name"
     values = ["^.*Oracle[^G]*$"]
@@ -15,9 +14,7 @@ data "oci_core_images" "images" {
   }
 }
 
-// Create a Single Compute for ALF
 resource "oci_core_instance" "instance" {
-  count               = local.is_scalable ? 0 : 1
   compartment_id      = local.compartment_ocid
   display_name        = format("%s-ords-core", var.proj_abrv)
   availability_domain = local.availability_domain
@@ -46,11 +43,12 @@ resource "oci_core_instance" "instance" {
   }
   // If this is ALF, we can't place in the private subnet as need access to the cloud agent/packages
   create_vnic_details {
-    subnet_id        = oci_core_subnet.subnet_public.id
-    assign_public_ip = true
+    subnet_id        = local.is_paid ? oci_core_subnet.subnet_private[0].id : oci_core_subnet.subnet_public.id
+    assign_public_ip = local.is_paid ? false : true
     nsg_ids          = [oci_core_network_security_group.security_group_ssh.id, oci_core_network_security_group.security_group_ords.id]
   }
   metadata = {
+    ssh_authorized_keys = tls_private_key.example_com.public_key_openssh
     user_data = "${base64encode(
       templatefile("${path.root}/templates/cloud-config.tftpl",
         {
@@ -72,6 +70,13 @@ resource "oci_core_instance" "instance" {
 ## Paid Resources (Mostly)
 ## To create the pool/scale need an image (paid)
 #####################################################################
+// Create an ORDS image from the core after ORDS is configured
+resource "oci_core_image" "ords_instance_image" {
+  count          = local.is_scalable ? 1 : 0
+  compartment_id = local.compartment_ocid
+  instance_id    = oci_core_instance.instance.id
+}
+
 resource "oci_core_instance_configuration" "instance_configuration" {
   count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
@@ -91,34 +96,12 @@ resource "oci_core_instance_configuration" "instance_configuration" {
       }
       source_details {
         source_type = "image"
-        image_id    = data.oci_core_images.images.images[0].id
-      }
-      agent_config {
-        are_all_plugins_disabled = false
-        is_management_disabled   = false
-        is_monitoring_disabled   = false
-        plugins_config {
-          desired_state = "ENABLED"
-          name          = "Bastion"
-        }
+        image_id    = oci_core_image.ords_instance_image[0].id
       }
       create_vnic_details {
         subnet_id        = oci_core_subnet.subnet_private[0].id
         assign_public_ip = false
         nsg_ids          = [oci_core_network_security_group.security_group_ssh.id, oci_core_network_security_group.security_group_ords.id]
-      }
-      metadata = {
-        user_data = "${base64encode(
-          templatefile("${path.root}/templates/cloud-config.tftpl",
-            {
-              db_password   = random_password.adb_password.result
-              db_conn       = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
-              ords_version  = var.sotfware_ver["ords"]
-              sqlcl_version = var.sotfware_ver["sqlcl"]
-              jdk_version   = var.sotfware_ver["jdk-17"]
-            }
-          )
-        )}"
       }
     }
   }
@@ -136,7 +119,7 @@ resource "oci_core_instance_pool" "instance_pool" {
     }
   }
   // Create without intances (the core added later); Auto-scaling will adjust
-  size         = 1
+  size         = 0
   display_name = format("%s-ords-pool", var.proj_abrv)
   load_balancers {
     backend_set_name = oci_load_balancer_backend_set.lb_backend_set.name
@@ -149,4 +132,18 @@ resource "oci_core_instance_pool" "instance_pool" {
     ignore_changes        = [size]
     create_before_destroy = true
   }
+}
+
+# 90s delay to allow pool to attach the LBaaS
+resource "time_sleep" "wait_90_seconds" {
+  depends_on      = [oci_core_instance_pool.instance_pool[0]]
+  create_duration = "90s"
+}
+
+// Add the "core" instance into the pool
+resource "oci_core_instance_pool_instance" "instance_pool_instance" {
+  count            = local.is_scalable ? 1 : 0
+  instance_id      = oci_core_instance.instance.id
+  instance_pool_id = oci_core_instance_pool.instance_pool[0].id
+  depends_on       = [time_sleep.wait_90_seconds]
 }
