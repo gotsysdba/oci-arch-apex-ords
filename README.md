@@ -4,14 +4,14 @@
 
 Oracle Cloud Infrastructure (OCI) APEX Application using Customer Managed ORDS
 
-![Oracle APEX](images/APEX_Logo.png "Oracle APEX")
+![Oracle APEX](assets/images/APEX_Logo.png "Oracle APEX")
 
 ## Release Info
 
 * **TAG: 1.0.0** - Uses mTLS for connecting ORDS to the ADB; Terraform Provisioner and Bastion Services to stage ADB wallet and ORDS Config
 * **MAIN:** Uses TLS for connecting ORDS to the ADB, eliminating the wallet and Bastion; cloud-init replaces Provisioner to configure ORDS
 
-**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  This new feature is not applicable to Always Free resources as explained in the [FAQS](FAQS.md).  For Paid Tenancies, an IaC taking advantage of this new feature can be found here:[oci-arch-apex-vanity](https://github.com/gotsysdba/oci-arch-apex-vanity)
+**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  This new feature is not applicable to Always Free resources as explained in the [FAQS](assets/doco/FAQS.md).  For Paid Tenancies, an IaC taking advantage of this new feature can be found here:[oci-arch-apex-vanity](https://github.com/gotsysdba/oci-arch-apex-vanity)
 
 ## Architecture
 
@@ -38,10 +38,10 @@ _**Always Free Notice:**_ This architecture for Always Free utilises most of the
 
 ### L Architecture Diagram
 
-![OCI L APEX/ORDS Architecture](images/L_APEX_ORDS.drawio.png "L APEX/ORDS Architecture")
+![OCI L APEX/ORDS Architecture](assets/images/L_APEX_ORDS.drawio.png "L APEX/ORDS Architecture")
 
-* [Other Sizes Architecture Diagrams](ARCHITECTURE.md)
-* [Architecture Details](ARCHITECTURE_DETAILS.md)
+* [Other Sizes Architecture Diagrams](assets/doco/ARCHITECTURE.md)
+* [Architecture Details](assets/doco/ARCHITECTURE_DETAILS.md)
 
 ## Assumptions
 
@@ -93,7 +93,7 @@ You'll need to update three fields with values you can find in the [OCI console]
 * TF_VAR_tenancy_ocid
 * TF_VAR_current_user_ocid
 
-To change the default ALF (Always Free) sizing, manaully set TF_VAR_size to either S, M, or L; for example:
+To change the default ALF (Always Free) sizing, manually set TF_VAR_size to either S, M, or L; for example:
 
 ```bash
 export TF_VAR_size=S
@@ -130,7 +130,7 @@ You should see usage information returned.
 
 #### **Always Free Only - Install OCI CLI**
 
-The Always Free deployment requires the installation of the OCI CLI Client as documented [here](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm).  For more information as to why, please review the [Frequently Asked Questions](FAQS.md).  
+The Always Free deployment requires the installation of the OCI CLI Client as documented [here](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm).  For more information as to why, please review the [Frequently Asked Questions](assets/doco/FAQS.md).
 
 #### **Build the Architecture**
 
@@ -157,7 +157,7 @@ Placing that IPAddress in a web browser will redirect you to the secure APEX por
 
 ## **FAQs**
 
-[Frequently Asked Questions](FAQS.md)
+[Frequently Asked Questions](assets/doco/FAQS.md)
 
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
 [magic_arch_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/gotsysdba/oci-arch-apex-ords/archive/refs/heads/main.zip
