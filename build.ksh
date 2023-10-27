@@ -26,7 +26,10 @@ rm ${ARCH_DIR}/${BUILD_NAME} 2>/dev/null
 print -- "--> Creating Stack in ${BUILD_DIR}"
 cd ${BUILD_DIR}
 print -- "--> Copying Terraform stack from ${ARCH_DIR} to ${BUILD_DIR}"
-rsync --stats -apxr $ARCH_DIR/ --exclude=.git* --exclude=.terraform* --exclude=*.pem --exclude=*.zip --exclude=terraform.tfstate* .
+rsync --stats -apxr $ARCH_DIR/ \
+	--exclude=assets --exclude=README.md --exclude=sonar-project.properties \
+	--exclude=.git* --exclude=.terraform* --exclude=*.pem --exclude=*.zip \
+	--exclude=terraform.tfstate* --exclude=terraform.tfvars* .
 print -- "--> Creating ZIP archive"
 rm -rf ${BUILD_DIR}images
 zip -r ${BUILD_DIR}/${BUILD_NAME} * --exclude build.ksh
