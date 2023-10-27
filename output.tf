@@ -1,4 +1,4 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 output "lb_address" {
@@ -15,6 +15,6 @@ output "Patience" {
 }
 
 // For debugging cloud-init only
-//output "cloud-init" {
-//  value = data.template_file.userdata.rendered
-//}
+output "cloud-init" {
+  value = var.debug_cloudinit ? data.template_file.user_data[0].rendered : null
+}

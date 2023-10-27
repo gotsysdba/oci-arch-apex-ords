@@ -1,10 +1,10 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "oci_logging_log_group" "logging_log_group" {
   count          = var.enable_lb_logging ? 1 : 0
   compartment_id = local.compartment_ocid
-  display_name   = format("%s-log-group", var.proj_abrv)
+  display_name   = format("%s-log-group", var.label_prefix)
 }
 
 resource "oci_logging_log" "lb_error_log" {
@@ -18,7 +18,7 @@ resource "oci_logging_log" "lb_error_log" {
       source_type = "OCISERVICE"
     }
   }
-  display_name = format("%s-lb-error", var.proj_abrv)
+  display_name = format("%s-lb-error", var.label_prefix)
   freeform_tags = {
   }
   is_enabled         = "true"
@@ -38,7 +38,7 @@ resource "oci_logging_log" "lb_access_log" {
       source_type = "OCISERVICE"
     }
   }
-  display_name = format("%s-lb-access", var.proj_abrv)
+  display_name = format("%s-lb-access", var.label_prefix)
   freeform_tags = {
   }
   is_enabled         = "true"

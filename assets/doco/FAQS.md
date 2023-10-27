@@ -2,9 +2,9 @@
 
 ## **Q: Why front the ADB with ORDS Compute Instances**
 
-**A:** The primary reason is to allow "Vanity" (i.e. `https://&lt;www.YourOrganisation.com&gt;`), TLS enabled URLs to APEX running on an Autonomous Database.  This is achived via an OCI Load Balancer which can be configured against a OCI Compute Instance running ORDS standalone.  Additionally, if you so choose, ORDS can be configured to enable Oracle REST Data Service against the Autonomous Database.
+**A:** The primary reason is to allow "Vanity" (i.e. `https://www.YourOrganisation.com`), TLS enabled URLs to APEX running on an Autonomous Database.  This is achieved via an OCI Load Balancer which can be configured against a OCI Compute Instance running ORDS standalone.  Additionally, if you so choose, ORDS can be configured to enable Oracle REST Data Service against the Autonomous Database.
 
-**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) suppport for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  An IaC taking advantage of this new feature: [oci-arch-apex-vanity](https://github.com/gotsysdba/oci-arch-apex-vanity).
+**UPDATE**: In September 2021, Oracle [announced](https://blogs.oracle.com/apex/post/introducing-vanity-urls-on-adb) support for Vanity URLs for OCI ADBs without the need for Customer Managed ORDS front-end.  An IaC taking advantage of this new feature: [oci-arch-apex-vanity](https://github.com/gotsysdba/oci-arch-apex-vanity).
 
 ---
 
@@ -28,7 +28,7 @@
 
 ## **Q: How do I update the HTTPS certificate**
 
-**A:** The infrastructure will be deployed with a self-signed certificate which will result in an warning message when visiting the APEX Application.  A valid certificate, registered against the "Friendly URL", should be applied to the Load Balancer resource before Productionisation.  Details can be found in the [SSL Certificate Management Documenation](https://docs.oracle.com/en-us/iaas/Content/Balance/Tasks/managingcertificates.htm).  Note that LetsEncrypt/CertBot can be used to manage the Load Balancer certificate as per the below Q/A.
+**A:** The infrastructure will be deployed with a self-signed certificate which will result in an warning message when visiting the APEX Application.  A valid certificate, registered against the "Friendly URL", should be applied to the Load Balancer resource before Production-isation.  Details can be found in the [SSL Certificate Management Documentation](https://docs.oracle.com/en-us/iaas/Content/Balance/Tasks/managingcertificates.htm).  Note that LetsEncrypt/CertBot can be used to manage the Load Balancer certificate as per the below Q/A.
 
 ---
 
@@ -49,4 +49,4 @@
 
 ## **Q: What are the settings for ORDS**
 
-**A:** A set of ORDS configuration defaults have been specified in the templats/cloud-config.tftpl file; these can be changed as required referencing the [ORDS Configuration](https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/22.1/ordig/about-REST-configuration-files.html#GUID-006F916B-8594-4A78-B500-BB85F35C12A0) documentation.
+**A:** A set of ORDS configuration defaults have been specified in the templates/cloud-config.tftpl file; these can be changed as required referencing the [ORDS Configuration](https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/22.1/ordig/about-REST-configuration-files.html#GUID-006F916B-8594-4A78-B500-BB85F35C12A0) documentation.

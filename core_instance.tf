@@ -1,22 +1,9 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
-// Get the latest Oracle Linux image
-data "oci_core_images" "images" {
-  compartment_id           = local.compartment_ocid
-  operating_system         = local.compute_image
-  operating_system_version = var.linux_os_version
-  shape                    = local.compute_shape
-  filter {
-    name   = "display_name"
-    values = ["^.*Oracle[^G]*$"]
-    regex  = true
-  }
-}
 
 resource "oci_core_instance" "instance" {
   compartment_id      = local.compartment_ocid
-  display_name        = format("%s-ords-core", var.proj_abrv)
+  display_name        = format("%s-ords-core", var.label_prefix)
   availability_domain = local.availability_domain
   shape               = local.compute_shape
   dynamic "shape_config" {
@@ -52,11 +39,8 @@ resource "oci_core_instance" "instance" {
     user_data = "${base64encode(
       templatefile("${path.root}/templates/cloud-config.tftpl",
         {
-          db_password   = random_password.adb_password.result
-          db_conn       = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
-          ords_version  = var.sotfware_ver["ords"]
-          sqlcl_version = var.sotfware_ver["sqlcl"]
-          jdk_version   = var.sotfware_ver["jdk-17"]
+          db_password = random_password.adb_password.result
+          db_conn     = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
         }
       )
     )}"
@@ -80,7 +64,7 @@ resource "oci_core_image" "ords_instance_image" {
 resource "oci_core_instance_configuration" "instance_configuration" {
   count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
-  display_name   = format("%s-instance-configuration", var.proj_abrv)
+  display_name   = format("%s-instance-configuration", var.label_prefix)
   instance_details {
     instance_type = "compute"
     launch_details {
@@ -120,7 +104,7 @@ resource "oci_core_instance_pool" "instance_pool" {
   }
   // Create without intances (the core added later); Auto-scaling will adjust
   size         = 0
-  display_name = format("%s-ords-pool", var.proj_abrv)
+  display_name = format("%s-ords-pool", var.label_prefix)
   load_balancers {
     backend_set_name = oci_load_balancer_backend_set.lb_backend_set.name
     load_balancer_id = oci_load_balancer.lb.id

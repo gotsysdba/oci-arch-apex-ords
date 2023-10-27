@@ -2,8 +2,6 @@
 output: {all: '| tee -a /var/log/cloud-init-ords.log'}
 package_upgrade: false
 packages:
-  - ksh
-  - yum-cron
   - jdk-17
   - ords
   - sqlcl
@@ -13,10 +11,10 @@ write_files:
   content: |
     APP_VM_OPTS=-Xms1024m
     ORDS_BASE=/opt/oracle/ords
-    ORDS_CONFIG=/home/oracle/ords/config
+    ORDS_CONFIG=/opt/oracle/standalone/config
   append: false
-  defer: true
-- path: /home/oracle/ords/config/databases/default/pool.xml
+  defer: false
+- path: /opt/oracle/standalone/config/databases/default/pool.xml
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -28,8 +26,8 @@ write_files:
     <entry key="plsql.gateway.mode">proxied</entry>
     </properties>
   append: false
-  defer: true
-- path: /home/oracle/ords/config/global/settings.xml
+  defer: false
+- path: /opt/oracle/standalone/config/global/settings.xml
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8"?>
@@ -40,6 +38,7 @@ write_files:
     <entry key="feature.sdw">false</entry>
     <entry key="jdbc.InitialLimit">10</entry>
     <entry key="jdbc.MaxLimit">100</entry>
+    <entry key="misc.defaultPage">apex</entry>
     <entry key="restEnabledSql.active">false</entry>
     <entry key="security.httpsHeaderCheck">X-Forwarded-Proto: https</entry>
     <entry key="standalone.context.path">/ords</entry>
@@ -47,14 +46,14 @@ write_files:
     <entry key="standalone.static.context.path">/i</entry>
     </properties>
   append: false
-  defer: true
-- path: /home/oracle/ords/setup.sql
+  defer: false
+- path: /opt/oracle/standalone/init/setup.sql
   permissions: '0755'
   content: |
     set serveroutput on size 99999 feedback off timing on linesize 180 echo on
     whenever sqlerror continue
     DECLARE
-      L_USER	VARCHAR2(255);
+      L_USER VARCHAR2(255);
     BEGIN
       BEGIN
         SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PUBLIC_USER_OCI';
@@ -64,16 +63,15 @@ write_files:
       END;
       BEGIN
         SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PLSQL_GATEWAY_OCI';
-        execute immediate 'ALTER USER "ORDS_PLSQL_GATEWAY_OCI" IDENTIFIED BY "&1"';
+        execute immediate 'ALTER USER "ORDS_PLSQL_GATEWAY_OCI" NO AUTHENTICATION';
       EXCEPTION WHEN NO_DATA_FOUND THEN
-        execute immediate 'CREATE USER "ORDS_PLSQL_GATEWAY_OCI" IDENTIFIED BY "&1"';
+        execute immediate 'CREATE USER "ORDS_PLSQL_GATEWAY_OCI" NO AUTHENTICATION';
       END;
-    END;    
+    END;
     /
     GRANT CONNECT TO ORDS_PUBLIC_USER_OCI;
     ALTER USER ORDS_PUBLIC_USER_OCI PROFILE ORA_APP_PROFILE;
     GRANT CONNECT TO ORDS_PLSQL_GATEWAY_OCI;
-    ALTER USER ORDS_PLSQL_GATEWAY_OCI PROFILE ORA_APP_PROFILE;
     ALTER USER ORDS_PLSQL_GATEWAY_OCI GRANT CONNECT THROUGH ORDS_PUBLIC_USER_OCI;
     BEGIN
       ORDS_ADMIN.PROVISION_RUNTIME_ROLE (
@@ -90,61 +88,72 @@ write_files:
     END;
     /
     DECLARE
-      L_CDN  VARCHAR2(255);
+      l_cdn  VARCHAR2(255);
     BEGIN
-      SELECT images_version INTO L_CDN 
+      SELECT images_version INTO l_cdn
         FROM APEX_PATCHES
-       where is_bundle_patch = 'Yes'
-       order by patch_version desc
-       fetch first 1 rows only;
+       WHERE is_bundle_patch = 'Yes'
+       ORDER by patch_version desc
+       FETCH first 1 rows only;
       apex_instance_admin.set_parameter(
           p_parameter => 'IMAGE_PREFIX',
-          p_value     => 'https://static.oracle.com/cdn/apex/'||L_CDN||'/' 
-      );      
-      commit;
+          p_value     => 'https://static.oracle.com/cdn/apex/'||l_cdn||'/'
+      );
     END;
     /
     BEGIN
         apex_instance_admin.set_parameter('RESTRICT_DEV_HEADER', 'APEX-Public-Access');
-        commit;
     END;
     /
     -- The below is used to ensure ADMIN password in tfstate isn't a usable password
-    ALTER USER ADMIN PASSWORD EXPIRE;
+    -- ALTER USER ADMIN PASSWORD EXPIRE;
     QUIT
   append: false
-  defer: true
-- path: /home/oracle/ords/setup.sh
+  defer: false
+- path: /opt/oracle/standalone/init/setup.sh
   permissions: '0755'
   content: |
-    #!/bin/env ksh
-    typeset -rx ORDS_CONFIG="/home/oracle/ords/config"
-    typeset -r ADMIN_PASS="$1"
-    typeset -r ADB_CONSTR="$2"
+    #!/bin/env bash
+    declare -rx ORDS_CONFIG="/opt/oracle/standalone/config"
+    declare -r ADMIN_PASS="$1"
+    declare -r ADB_CONSTR="$2"
 
     # Generate a password for the ORDS users (loop to avoid entropy too low issues)
     for i in {1..10}; do
-      typeset ords_pwd=$(pwmake 80)
+      declare ords_pwd=$(pwmake 80)
       if (( $? == 0 )) && [[ -n $ords_pwd ]]; then
         break
       fi
     done
 
+    # Wait for JAVA and ORDS installation
+    for i in {1..10}; do
+      declare java=$(which java)
+      if (( $? == 0 )); then
+        declare ords=$(which ords)
+        if (( $? == 0 )); then
+          echo "Found $java" && echo "Found $ords"
+          break
+        fi
+      fi
+      sleep 60
+    done
+
     # Create the password wallet file
-    ords config secret --password-stdin db.password <<< "$ords_pwd"
-    
+    ords --config $ORDS_CONFIG config secret --password-stdin db.password <<< "$ords_pwd"
+
     # Setup the ORDS user
-    sql admin/"$ADMIN_PASS"@"$ADB_CONSTR" @/home/oracle/ords/setup.sql $ords_pwd
+    sql admin/"$ADMIN_PASS"@"$ADB_CONSTR" @/opt/oracle/standalone/init/setup.sql $ords_pwd
 
     # Post Setup
     systemctl stop firewalld.service
     firewall-offline-cmd --zone=public --add-port 8080/tcp
     systemctl start firewalld.service
-    chown -R oracle:oinstall /home/oracle/ords
+    chown -R oracle:oinstall /opt/oracle/standalone
     /bin/cp /etc/ords.conf.custom /etc/ords.conf
     systemctl restart ords.service
     systemctl enable ords.service
   append: false
-  defer: true
+  defer: false
 runcmd:
-  - /home/oracle/ords/setup.sh '${db_password}' '${db_conn}'
+  - /opt/oracle/standalone/init/setup.sh '${db_password}' '${db_conn}'
