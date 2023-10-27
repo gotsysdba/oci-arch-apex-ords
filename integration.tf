@@ -1,4 +1,4 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 #####################################################################
@@ -7,7 +7,7 @@
 resource "oci_integration_integration_instance" "integration_instance" {
   count                     = local.is_paid && var.prov_oic ? 1 : 0
   compartment_id            = local.compartment_ocid
-  display_name              = format("%s-auto-integration_instance", var.proj_abrv)
+  display_name              = format("%s-auto-integration_instance", var.label_prefix)
   consumption_model         = "UCM"
   integration_instance_type = "STANDARD"
   is_byol                   = "true"

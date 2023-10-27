@@ -1,4 +1,4 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 ####################################################################
@@ -7,13 +7,13 @@
 resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
   count          = local.is_scalable ? 1 : 0
   compartment_id = local.compartment_ocid
-  display_name   = format("%s-auto-scaling-configuration", var.proj_abrv)
+  display_name   = format("%s-auto-scaling-configuration", var.label_prefix)
   auto_scaling_resources {
     id   = oci_core_instance_pool.instance_pool[0].id
     type = "instancePool"
   }
   policies {
-    display_name = format("%s-auto-scaling-policy", var.proj_abrv)
+    display_name = format("%s-auto-scaling-policy", var.label_prefix)
     capacity {
       initial = var.compute_instances[local.sizing]
       min     = var.compute_instances[local.sizing]
@@ -25,7 +25,7 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
         type  = "CHANGE_COUNT_BY"
         value = "1"
       }
-      display_name = format("%s-auto-scaling-out-rule", var.proj_abrv)
+      display_name = format("%s-auto-scaling-out-rule", var.label_prefix)
       metric {
         metric_type = "CPU_UTILIZATION"
         threshold {
@@ -39,7 +39,7 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
         type  = "CHANGE_COUNT_BY"
         value = "-1"
       }
-      display_name = format("%s-auto-scaling-out-rule", var.proj_abrv)
+      display_name = format("%s-auto-scaling-out-rule", var.label_prefix)
       metric {
         metric_type = "CPU_UTILIZATION"
         threshold {

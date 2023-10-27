@@ -1,28 +1,59 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-// Basic Hidden
-variable "tenancy_ocid" {}
-variable "compartment_ocid" {
-  default = ""
+variable "tenancy_ocid" {
+  description = "The Tenancy ID of the OCI Cloud Account in which to create the resources."
+  type        = string
 }
-variable "region" {}
 
-// Extra Hidden
+variable "compartment_ocid" {
+  description = "The Compartment ID where to create all resources."
+  type        = string
+}
+
+variable "region" {
+  description = "The OCI Region where resources will be created."
+  type        = string
+}
+
+variable "user_ocid" {
+  description = "The ID of the User that terraform will use to create the resources."
+  type        = string
+  default     = ""
+}
+
 variable "current_user_ocid" {
-  default = ""
+  description = "The ID of the user that terraform will use to create the resources. ORM compatible"
+  type        = string
+  default     = ""
 }
+
 variable "fingerprint" {
-  default = ""
+  description = "Fingerprint of the API private key to use with OCI API."
+  type        = string
+  default     = ""
 }
+
+variable "private_key" {
+  description = "The contents of the private key file to use with OCI API. This takes precedence over private_key_path if both are specified in the provider."
+  sensitive   = true
+  type        = string
+  default     = ""
+}
+
 variable "private_key_path" {
-  default = ""
+  description = "The path to the OCI API private key."
+  type        = string
+  default     = ""
 }
 
 // General Configuration
-variable "proj_abrv" {
-  default = "apexpoc"
+variable "label_prefix" {
+  description = "A string that will be prepended to all resources."
+  type        = string
+  default     = "apexpoc"
 }
+
 variable "size" {
   default = "ALF"
 }
@@ -32,16 +63,6 @@ variable "adb_license_model" {
 // Block APEX/ORDS Dev and Admin Tools 
 variable "enable_lbaas_ruleset" {
   default = "false"
-}
-
-// ORDS Software Versions
-variable "sotfware_ver" {
-  type = map(any)
-  default = {
-    "jdk-17" = "2000:17.0.3.1-ga.x86_64"
-    "ords"   = "22.2.0-6.el7"
-    "sqlcl"  = "22.2.0-2.el7"
-  }
 }
 
 // Additional Resources
@@ -156,7 +177,7 @@ variable "adb_db_version" {
 }
 
 variable "linux_os_version" {
-  default = "7.9"
+  default = "8"
 }
 
 variable "bastion_user" {
@@ -164,30 +185,11 @@ variable "bastion_user" {
 }
 
 // VCN Configurations Variables
-variable "vcn_cidr" {
-  default = "10.0.0.0/16"
-}
-
 variable "vcn_is_ipv6enabled" {
-  default = true
+  default = false
 }
 
-variable "public_subnet_cidr" {
-  default = "10.0.1.0/24"
-}
-
-variable "private_subnet_cidr" {
-  default = "10.0.2.0/24"
-}
-
-# Dynamic Locals
-locals {
-  sizing               = var.always_free ? "ALF" : var.size
-  is_paid              = local.sizing != "ALF" ? true : false
-  is_scalable          = local.sizing != "ALF" && local.sizing != "XS" ? true : false
-  adb_private_endpoint = local.sizing != "ALF" ? true : false
-  compute_image        = local.sizing != "ALF" ? "Oracle Autonomous Linux" : "Oracle Linux"
-  compute_shape        = local.sizing != "ALF" ? "VM.Standard.E4.Flex" : "VM.Standard.E2.1.Micro"
-  is_flexible_shape = length(regexall("Flex", local.compute_shape)) > 0 ? true : false
-  compartment_ocid     = var.compartment_ocid != "" ? var.compartment_ocid : var.tenancy_ocid
+// Debug CloudInit
+variable "debug_cloudinit" {
+  default = false
 }

@@ -1,4 +1,4 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 #####################################################################
@@ -8,7 +8,7 @@
 resource "oci_core_network_security_group" "security_group_ssh" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
-  display_name   = format("%s-security-group-ssh", var.proj_abrv)
+  display_name   = format("%s-security-group-ssh", var.label_prefix)
 }
 // Security Group for SSH - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_ssh_egress" {
@@ -23,7 +23,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_ssh_ing
   network_security_group_id = oci_core_network_security_group.security_group_ssh.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = var.public_subnet_cidr
+  source                    = oci_core_subnet.subnet_public.cidr_block
   source_type               = "CIDR_BLOCK"
   tcp_options {
     destination_port_range {
@@ -37,7 +37,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_ssh_ing
 resource "oci_core_network_security_group" "security_group_lb" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
-  display_name   = format("%s-security-group-lb", var.proj_abrv)
+  display_name   = format("%s-security-group-lb", var.label_prefix)
 }
 // Security Group for Load Balancer (lb) - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_lb_egress" {
@@ -48,7 +48,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_lb_egre
   destination_type          = "CIDR_BLOCK"
 }
 // Security Group for Load Balancer (lb) - INGRESS
-resource "oci_core_network_security_group_security_rule" "security_group_lb_inress_TCP80" {
+resource "oci_core_network_security_group_security_rule" "security_group_lb_ingress_TCP80" {
   network_security_group_id = oci_core_network_security_group.security_group_lb.id
   direction                 = "INGRESS"
   protocol                  = "6"
@@ -61,7 +61,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_lb_inre
     }
   }
 }
-resource "oci_core_network_security_group_security_rule" "security_group_lb_inress_TCP443" {
+resource "oci_core_network_security_group_security_rule" "security_group_lb_ingress_TCP443" {
   network_security_group_id = oci_core_network_security_group.security_group_lb.id
   direction                 = "INGRESS"
   protocol                  = "6"
@@ -79,7 +79,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_lb_inre
 resource "oci_core_network_security_group" "security_group_ords" {
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
-  display_name   = format("%s-security-group-ords", var.proj_abrv)
+  display_name   = format("%s-security-group-ords", var.label_prefix)
 }
 // Security Group for ORDS - EGRESS
 resource "oci_core_network_security_group_security_rule" "security_group_ords_egress_grp" {
@@ -101,7 +101,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_ords_in
   network_security_group_id = oci_core_network_security_group.security_group_ords.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = var.public_subnet_cidr
+  source                    = oci_core_subnet.subnet_public.cidr_block
   source_type               = "CIDR_BLOCK"
   tcp_options {
     destination_port_range {
@@ -118,7 +118,7 @@ resource "oci_core_network_security_group" "security_group_adb" {
   count          = local.is_paid ? 1 : 0
   compartment_id = local.compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
-  display_name   = format("%s-security-group-adb", var.proj_abrv)
+  display_name   = format("%s-security-group-adb", var.label_prefix)
 }
 
 // Security Group for ADB - EGRESS
@@ -127,7 +127,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_adb_egr
   network_security_group_id = oci_core_network_security_group.security_group_adb[0].id
   direction                 = "EGRESS"
   protocol                  = "6"
-  destination               = var.private_subnet_cidr
+  destination               = oci_core_vcn.vcn.cidr_block
   destination_type          = "CIDR_BLOCK"
 }
 // Security Group for ADB - INGRESS
@@ -136,7 +136,7 @@ resource "oci_core_network_security_group_security_rule" "security_group_adb_ing
   network_security_group_id = oci_core_network_security_group.security_group_adb[0].id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = var.private_subnet_cidr
+  source                    = oci_core_vcn.vcn.cidr_block
   source_type               = "CIDR_BLOCK"
   tcp_options {
     destination_port_range {

@@ -1,9 +1,9 @@
-# Copyright © 2020, Oracle and/or its affiliates. 
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "oci_load_balancer" "lb" {
   compartment_id = local.compartment_ocid
-  display_name   = format("%s-lb", var.proj_abrv)
+  display_name   = format("%s-lb", var.label_prefix)
   shape          = "flexible"
   is_private     = false
   shape_details {
@@ -18,7 +18,7 @@ resource "oci_load_balancer" "lb" {
 
 resource "oci_load_balancer_backend_set" "lb_backend_set" {
   load_balancer_id = oci_load_balancer.lb.id
-  name             = format("%s-lb-backend-set", var.proj_abrv)
+  name             = format("%s-lb-backend-set", var.label_prefix)
   policy           = "LEAST_CONNECTIONS"
   session_persistence_configuration {
     cookie_name = "*"
@@ -37,7 +37,7 @@ resource "oci_load_balancer_backend_set" "lb_backend_set" {
 
 resource "oci_load_balancer_listener" "lb_listener_80" {
   load_balancer_id         = oci_load_balancer.lb.id
-  name                     = format("%s-lb-listener-80", var.proj_abrv)
+  name                     = format("%s-lb-listener-80", var.label_prefix)
   default_backend_set_name = oci_load_balancer_backend_set.lb_backend_set.name
   port                     = 80
   protocol                 = "HTTP"
@@ -47,7 +47,7 @@ resource "oci_load_balancer_listener" "lb_listener_80" {
 // Ignore changes to avoid overwriting valid certs loaded in later
 resource "oci_load_balancer_listener" "lb_listener_443" {
   load_balancer_id         = oci_load_balancer.lb.id
-  name                     = format("%s-lb-listener-443", var.proj_abrv)
+  name                     = format("%s-lb-listener-443", var.label_prefix)
   default_backend_set_name = oci_load_balancer_backend_set.lb_backend_set.name
   port                     = 443
   protocol                 = "HTTP"

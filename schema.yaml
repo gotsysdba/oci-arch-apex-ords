@@ -13,12 +13,12 @@ locale: "en"
 variableGroups:
   - title: "General Configuration"
     variables:
-      - proj_abrv
+      - label_prefix
       - always_free
       - size
       - adb_license_model
     visible: true
- 
+
   - title: "Additional Components"
     variables:
       - use_object_storage
@@ -57,7 +57,6 @@ variableGroups:
       - vcn_is_ipv6enabled
       - public_subnet_cidr
       - private_subnet_cidr
-      - sotfware_ver
       - enable_lbaas_ruleset
     visible: false
 
@@ -77,9 +76,10 @@ variables:
     description: "The compartment in which to create compute instance(s)"
     required: true
 
-  proj_abrv:
+  label_prefix:
     type: string
     title: "Resource Name Prefix"
+    default: "apexpoc"
     required: true
 
   always_free:
@@ -97,7 +97,7 @@ variables:
       - M
       - L
     required: true
-    visible: 
+    visible:
       not:
         - always_free
 
@@ -109,7 +109,7 @@ variables:
       - BRING_YOUR_OWN_LICENSE
       - LICENSE_INCLUDED
     required: true
-    visible: 
+    visible:
       not:
         - always_free
 
@@ -127,7 +127,7 @@ variables:
     type: boolean
     title: "Provision Data Safe"
     default: false
-    visible: 
+    visible:
       not:
         - always_free
 
@@ -135,7 +135,7 @@ variables:
     type: boolean
     title: "Provision Oracle Integration Cloud"
     default: false
-    visible: 
+    visible:
       not:
         - always_free
 

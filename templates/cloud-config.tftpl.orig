@@ -11,10 +11,10 @@ write_files:
   content: |
     APP_VM_OPTS=-Xms1024m
     ORDS_BASE=/opt/oracle/ords
-    ORDS_CONFIG=/opt/oracle/standalone/config
+    ORDS_CONFIG=/home/oracle/ords/config
   append: false
-  defer: false
-- path: /opt/oracle/standalone/config/databases/default/pool.xml
+  defer: true
+- path: /home/oracle/ords/config/databases/default/pool.xml
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -26,8 +26,8 @@ write_files:
     <entry key="plsql.gateway.mode">proxied</entry>
     </properties>
   append: false
-  defer: false
-- path: /opt/oracle/standalone/config/global/settings.xml
+  defer: true
+- path: /home/oracle/ords/config/global/settings.xml
   permissions: '0644'
   content: |
     <?xml version="1.0" encoding="UTF-8"?>
@@ -38,7 +38,6 @@ write_files:
     <entry key="feature.sdw">false</entry>
     <entry key="jdbc.InitialLimit">10</entry>
     <entry key="jdbc.MaxLimit">100</entry>
-    <entry key="misc.defaultPage">apex</entry>
     <entry key="restEnabledSql.active">false</entry>
     <entry key="security.httpsHeaderCheck">X-Forwarded-Proto: https</entry>
     <entry key="standalone.context.path">/ords</entry>
@@ -46,8 +45,8 @@ write_files:
     <entry key="standalone.static.context.path">/i</entry>
     </properties>
   append: false
-  defer: false
-- path: /opt/oracle/standalone/init/setup.sql
+  defer: true
+- path: /home/oracle/ords/setup.sql
   permissions: '0755'
   content: |
     set serveroutput on size 99999 feedback off timing on linesize 180 echo on
@@ -63,9 +62,9 @@ write_files:
       END;
       BEGIN
         SELECT USERNAME INTO L_USER FROM DBA_USERS WHERE USERNAME='ORDS_PLSQL_GATEWAY_OCI';
-        execute immediate 'ALTER USER "ORDS_PLSQL_GATEWAY_OCI" NO AUTHENTICATION';
+        execute immediate 'ALTER USER "ORDS_PLSQL_GATEWAY_OCI" NO AUTHENTICATION;
       EXCEPTION WHEN NO_DATA_FOUND THEN
-        execute immediate 'CREATE USER "ORDS_PLSQL_GATEWAY_OCI" NO AUTHENTICATION';
+        execute immediate 'CREATE USER "ORDS_PLSQL_GATEWAY_OCI" NO AUTHENTICATION;
       END;
     END;
     /
@@ -105,16 +104,16 @@ write_files:
         apex_instance_admin.set_parameter('RESTRICT_DEV_HEADER', 'APEX-Public-Access');
     END;
     /
-    -- The below is used to ensure ADMIN password in tfstate isn't a usable password
-    -- ALTER USER ADMIN PASSWORD EXPIRE;
+    The below is used to ensure ADMIN password in tfstate isn't a usable password
+    ALTER USER ADMIN PASSWORD EXPIRE;
     QUIT
   append: false
-  defer: false
-- path: /opt/oracle/standalone/init/setup.sh
+  defer: true
+- path: /home/oracle/ords/setup.sh
   permissions: '0755'
   content: |
     #!/bin/env bash
-    declare -rx ORDS_CONFIG="/opt/oracle/standalone/config"
+    declare -rx ORDS_CONFIG="/home/oracle/ords/config"
     declare -r ADMIN_PASS="$1"
     declare -r ADB_CONSTR="$2"
 
@@ -126,34 +125,21 @@ write_files:
       fi
     done
 
-    # Wait for JAVA and ORDS installation
-    for i in {1..10}; do
-      declare java=$(which java)
-      if (( $? == 0 )); then
-        declare ords=$(which ords)
-        if (( $? == 0 )); then
-          echo "Found $java" && echo "Found $ords"
-          break
-        fi
-      fi
-      sleep 60
-    done
-
     # Create the password wallet file
     ords --config $ORDS_CONFIG config secret --password-stdin db.password <<< "$ords_pwd"
 
     # Setup the ORDS user
-    sql admin/"$ADMIN_PASS"@"$ADB_CONSTR" @/opt/oracle/standalone/init/setup.sql $ords_pwd
+    sql admin/"$ADMIN_PASS"@"$ADB_CONSTR" @/home/oracle/ords/setup.sql $ords_pwd
 
     # Post Setup
     systemctl stop firewalld.service
     firewall-offline-cmd --zone=public --add-port 8080/tcp
     systemctl start firewalld.service
-    chown -R oracle:oinstall /opt/oracle/standalone
+    chown -R oracle:oinstall /home/oracle/ords
     /bin/cp /etc/ords.conf.custom /etc/ords.conf
     systemctl restart ords.service
     systemctl enable ords.service
   append: false
-  defer: false
+  defer: true
 runcmd:
-  - /opt/oracle/standalone/init/setup.sh '${db_password}' '${db_conn}'
+  - /home/oracle/ords/setup.sh '${db_password}' '${db_conn}'
