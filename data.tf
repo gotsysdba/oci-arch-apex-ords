@@ -32,12 +32,3 @@ data "oci_core_images" "images" {
     regex  = true
   }
 }
-
-data "template_file" "user_data" {
-  count    = var.debug_cloudinit ? 1 : 0
-  template = file("${path.root}/templates/cloud-config.tftpl")
-  vars = {
-    db_password = random_password.adb_password.result
-    db_conn     = element([for i, v in oci_database_autonomous_database.autonomous_database.connection_strings[0].profiles : v.value if v.consumer_group == "TP" && v.tls_authentication == "SERVER"], 0)
-  }
-}

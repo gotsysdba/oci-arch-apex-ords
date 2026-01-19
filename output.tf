@@ -13,8 +13,3 @@ output "ADMIN_Password" {
 output "Patience" {
   value = "After Deployment, Please have patience (5-10min) as the Customer Managed ORDS configures itself"
 }
-
-// For debugging cloud-init only
-output "cloud-init" {
-  value = var.debug_cloudinit ? data.template_file.user_data[0].rendered : null
-}

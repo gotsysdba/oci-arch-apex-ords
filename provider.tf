@@ -5,14 +5,14 @@ terraform {
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = ">= 5.17.0"
+      version = "~> 7.30"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = ">= 4.0.4"
+      version = ">= 4.1.0"
     }
   }
-  required_version = "~> 1.2"
+  required_version = ">= 1.5"
 }
 
 provider "oci" {

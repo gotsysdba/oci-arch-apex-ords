@@ -55,8 +55,9 @@ variable "label_prefix" {
 }
 
 variable "size" {
-  default = "ALF"
+  default = "XS"
 }
+
 variable "adb_license_model" {
   default = "BRING_YOUR_OWN_LICENSE"
 }
@@ -96,11 +97,11 @@ variable "always_free" {
 variable "adb_cpu_core_count" {
   type = map(any)
   default = {
-    "L"   = 4
-    "M"   = 2
-    "S"   = 1
-    "XS"  = 1
-    "ALF" = 1
+    "L"   = 8
+    "M"   = 4
+    "S"   = 2
+    "XS"  = 2
+    "ALF" = 2
   }
 }
 
@@ -161,18 +162,18 @@ variable "compute_flex_shape_ocpus" {
   }
 }
 
-variable "adb_storage_size_in_tbs" {
-  default = 1
+variable "adb_data_storage_size_in_gb" {
+  default = 20
 }
 
 variable "adb_db_version" {
   type = map(any)
   default = {
-    "L"   = "19c"
-    "M"   = "19c"
-    "S"   = "19c"
-    "XS"  = "19c"
-    "ALF" = "21c"
+    "L"   = "26ai"
+    "M"   = "26ai"
+    "S"   = "26ai"
+    "XS"  = "26ai"
+    "ALF" = "26ai"
   }
 }
 

@@ -14,18 +14,16 @@
 *.swp
 *.pem
 
-##############################################################################
-# Terraform Generic
-##############################################################################
-# Local .terraform directories
-**/.terraform/*
 
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-# .terraform.lock.hcl (Controversial?)
-.terraform.lock.hcl
+##############################################################################
+# Terraform
+##############################################################################
+**/terraform.tfvars*
+**/.terraform*
+**/terraform.tfstate*
+**/backend.conf
+**/backend.tf
+**/*.auto.tfvars
 
 # Crash log files
 crash.log
